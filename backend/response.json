@@ -1,0 +1,37 @@
+[
+  {
+    "game_id": "RPG25ND283405",
+    "gaming_group": "Goodman Games",
+    "title": "CW-07: The Shadow Path to Whiterock",
+    "short_description": "What sinister creatures inhabit this forgotten passage?",
+    "long_description": "The heroes have discovered a hidden tunnel...",
+    "event_type": "RPG - Role Playing Game",
+    "game_system": "Dungeons & Dragons",
+    "rules_edition": "5th",
+    "minimum_players": 12,
+    "maximum_players": 18,
+    "minimum_age": "Teen (13+)",
+    "experience_required": "Some",
+    "materials_required": "None",
+    "start_time": "2025-08-01T14:00:00",
+    "end_time": "2025-08-01T18:00:00",
+    "location": {
+      "name": "Stadium : Field : Goodman Games : HQ",
+      "address": "123 Fantasy St, Cillamar",
+      "latitude": 40.7128,
+      "longitude": -74.0060,
+      "rooms": [
+        {"room_name": "Main Hall", "floor": 1},
+        {"room_name": "Game Room 1", "floor": 2}
+      ]
+    },
+    "attendees": [
+      {"username": "john_doe", "email": "john.doe@example.com"}
+    ],
+    "cost": 20.00,
+    "ticketing_method": "Electronic",
+    "user_status": [
+      {"status": "wishlist"}
+    ]
+  }
+]
