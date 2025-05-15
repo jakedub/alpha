@@ -1,7 +1,7 @@
 // frontend/src/components/RoomList.tsx
 import { useEffect, useState } from 'react';
-import api from '../api/api';
-import type { Room } from '../types';
+import api from '../../api/api';
+import type { Room } from '../../models/rooms';
 
 const RoomList = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
