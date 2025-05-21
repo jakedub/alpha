@@ -40,7 +40,7 @@ EXPERIENCE_REQUIRED_CHOICES = [
 ]
 
 class Event(models.Model):
-    game_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    game_id = models.CharField(max_length=50, unique=True, null=False, blank=True)
     gaming_group = models.CharField(max_length=255, default="Unknown Group")
     title = models.CharField(max_length=255, null=True, blank=True)
     short_description = models.TextField(null=True, blank=True)
@@ -51,7 +51,7 @@ class Event(models.Model):
     default="OTH"
     )
     game_system = models.CharField(max_length=100, null=True, blank=True)
-    rules_edition = models.CharField(max_length=10, null=True, blank=True)
+    rules_edition = models.CharField(max_length=100, null=True, blank=True)
     minimum_players = models.IntegerField(null=True, blank=True)
     maximum_players = models.IntegerField(null=True, blank=True)
     minimum_age = models.CharField(
@@ -69,8 +69,8 @@ class Event(models.Model):
     start_time = models.DateTimeField()
     duration_hours = models.IntegerField(null=True, blank=True)
     end_time = models.DateTimeField()
-    gm_names = models.CharField(max_length=255, null=True, blank=True)
-    website = models.URLField(null=True, blank=True)
+    gm_names = models.CharField(max_length=1000, null=True, blank=True)
+    website = models.URLField(max_length=500, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     tournament = models.BooleanField(default=False)
     round_number = models.IntegerField(null=True, blank=True)
@@ -78,12 +78,19 @@ class Event(models.Model):
     minimum_play_time = models.IntegerField(null=True, blank=True)
     attendee_registration = models.TextField(null=True, blank=True)
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='events')
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True)
     table_number = models.CharField(max_length=50, null=True, blank=True)
     special_category = models.CharField(max_length=255, null=True, blank=True)
     tickets_available = models.IntegerField(null=True, blank=True)
     last_modified = models.DateField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if not self.game_id:
+            base = (self.title or "Event").replace(" ", "").replace(":", "")[:30]
+            self.game_id = f"{base}-{self.pk or 'new'}"
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return self.title
+         return f"{self.game_id or 'No ID'} - {self.title or 'Untitled'}"
+    

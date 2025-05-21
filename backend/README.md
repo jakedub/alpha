@@ -5,6 +5,8 @@ This project contains a monorepo setup with:
 - `backend/` — Django & Django REST Framework
 - `frontend/` — React (Vite or Create React App)
 
+- 'password is changeme123'
+- super user: admin, gmail, C@rlsberg9075
 ---
 
 ## 🔧 Setup

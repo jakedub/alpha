@@ -1,0 +1,24 @@
+.eventField {
+     text-align: left;
+     display: grid;
+     grid-template-columns: 150px 1fr;
+     align-items: start;
+     padding: 0.25rem 0;
+}
+
+.eventContainer {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.key {
+  font-weight: bold;
+}
+
+.value {
+  word-break: break-word;
+}
+
+.eventButton {
+    background-color: #ef4565;
+}

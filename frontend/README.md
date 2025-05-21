@@ -52,3 +52,12 @@ export default tseslint.config({
   },
 })
 ```
+Needs stored:
+# Predefined coordinates stored manually or in DB
+INDOOR_LOCATIONS = {
+    "Lucas Oil Stadium West Concourse HQ": (39.7601, -86.1638),
+    "JW Marriott Room 757": (39.7684, -86.1681),  # approximate base + offset
+}
+
+def get_indoor_location(name):
+    return INDOOR_LOCATIONS.get(name)

@@ -9,11 +9,11 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = EventFilter
+    filterset_class = EventFilter
+    lookup_field = "game_id"
 
     def get_queryset(self):
-        user = self.request.user
-        return Event.objects.filter(user_events__user=user)
+        return Event.objects.all()
 
     def perform_create(self, serializer):
         user = self.request.user
