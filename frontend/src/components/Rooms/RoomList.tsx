@@ -7,12 +7,14 @@ const RoomList = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    api.get<Room[]>('/rooms/')
-      .then(res => setRooms(res.data))
-      .catch(() => setError('Failed to load rooms.'));
-  }, []);
-
+    useEffect(() => {
+    api.get('/rooms/')
+        .then(res => {
+        console.log('Fetched rooms:', res.data.results); // Log just the results array
+        setRooms(res.data.results); // <-- FIX: assign results array, not the full object
+        })
+        .catch(() => setError('Failed to load locations.'));
+    }, []);
   return (
     <div>
       <h2>Rooms</h2>

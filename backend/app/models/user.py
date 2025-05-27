@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
+from multiselectfield import MultiSelectField
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -34,7 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
-    mobility_aid = models.CharField(max_length=20, choices=MOBILITY_CHOICES, default='none')
+    mobility_aid = MultiSelectField(choices=MOBILITY_CHOICES, default='none')
     stair_preference = models.CharField(max_length=20, choices=STAIR_PREFERENCE_CHOICES, default='no_preference')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

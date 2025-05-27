@@ -101,5 +101,3 @@ Add this to `.vscode/settings.json`:
 - Use `createdb alpha` to create the DB if needed.
 
 
-TO DO
-Upload locations

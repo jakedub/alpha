@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Box, Fab } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import LightbulbOutlineRoundedIcon from '@mui/icons-material/LightbulbOutlineRounded';
 import RoomList from './components/Rooms/RoomList';
@@ -14,6 +14,8 @@ import Home from './components/Shared/Home';
 import EventDetail from './components/Events/EventDetail';
 import LocationList from './components/Locations/LocationList';
 import LocationDetail from './components/Locations/LocationDetail';
+import { Calendar } from './components/Calendar/Calendar';
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
@@ -24,7 +26,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Layout>
-          <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1300 }}>
+          <Fab sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1300 }}>
             <IconButton
               onClick={() => setDarkMode(!darkMode)}
               color="inherit"
@@ -32,7 +34,7 @@ function App() {
             >
               <LightbulbOutlineRoundedIcon />
             </IconButton>
-          </Box>
+          </Fab>
           <Routes>
             <Route path="/rooms" element={<RoomList />} />
             <Route path="/user" element={<UserPreferences />} />
@@ -40,7 +42,9 @@ function App() {
             <Route path="/events" element={<EventList />} />
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/locations/:id" element={<LocationDetail />} /> 
-             <Route path="/locations" element={<LocationList />} />
+            <Route path="/locations" element={<LocationList />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path='/user-preference' element={<UserPreferences/>}/>
           </Routes>
         </Layout>
       </Router>

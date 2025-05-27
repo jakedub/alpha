@@ -13,6 +13,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  patch,
   styled,
   Typography,
   useTheme,
@@ -24,6 +25,7 @@ import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import GroupIcon from '@mui/icons-material/Group';
 import EventIcon from '@mui/icons-material/Event';
 import StadiumRoundedIcon from '@mui/icons-material/StadiumRounded';
+import { blue, pink } from '@mui/material/colors';
 
 // Animated hamburger icon that morphs into an "X"
 const HamburgerToggle = ({ isOpen }: { isOpen: boolean }) => (
@@ -119,8 +121,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
             { text: 'Home', path: '/', icon: <HomeIcon /> },
             { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
             { text: 'Users', path: '/users', icon: <GroupIcon /> },
+            { text: 'User Preferences', path: '/user-preferences', icon: <GroupIcon sx={{color: blue}}/> },
             { text: 'Events', path: '/events', icon: <EventIcon/>},
             { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon/>},
+            { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }}/>}
           ].map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton

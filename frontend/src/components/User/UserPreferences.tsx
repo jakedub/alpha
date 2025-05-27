@@ -13,7 +13,7 @@ const UserPreferences = () => {
   useEffect(() => {
     api.get<User[]>('/users/')
       .then(res => setUsers(res.data))
-      .catch(() => setError('Failed to load rooms.'));
+      .catch(() => setError('Failed to user.'));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
