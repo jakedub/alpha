@@ -3,7 +3,7 @@ import { Box, Container, Typography } from '@mui/material';
 
 const Home = () => {
   return (
-    <Container maxWidth="md">
+    <Container maxWidth={false} sx={{ width: '75vw' }}>
       <Box>
         <Typography variant="h3" gutterBottom>
           Welcome to the Alpha App

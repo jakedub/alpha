@@ -10,7 +10,6 @@ const RoomList = () => {
     useEffect(() => {
     api.get('/rooms/')
         .then(res => {
-        console.log('Fetched rooms:', res.data.results); // Log just the results array
         setRooms(res.data.results); // <-- FIX: assign results array, not the full object
         })
         .catch(() => setError('Failed to load locations.'));

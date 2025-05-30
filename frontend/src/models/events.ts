@@ -1,40 +1,6 @@
-export interface Location {
-  name: string;
-}
-
-export interface Room {
-  room_name: string;
-  floor_level: string;
-}
-export type EventType =
-  | "RPG"
-  | "WKS"
-  | "MHE"
-  | "LRP"
-  | "CGM"
-  | "BGM"
-  | "ENT"
-  | "TRD"
-  | "SEM"
-  | "TCG"
-  | "SPA"
-  | "HMN"
-  | "ZED"
-  | "NMN"
-  | "KID"
-  | "EGM"
-  | "FLM"
-  | "TDA"
-  | "OTH";
-
-export type AgeRequired =
-  | "Teen"
-  | "Mature"
-  | "Everyone"
-  | "21+"
-  | "Kids";
-
-export type ExperienceRequired = "None" | "Some" | "Expert";
+import { Location } from "./locations";
+import { Room } from "./rooms";
+import { EventType, AgeRequired, ExperienceRequired } from "./enum";
 
 export interface Event {
   id: number;

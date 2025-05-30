@@ -25,6 +25,19 @@ const EventDetail = () => {
     <div>
           <h2>{event.title}</h2>
           <p><strong>Description:</strong> {event.long_description}</p>
+          {event.game_id && (
+          <p>
+            <strong>Direct Link:</strong>{' '}
+            <a
+              href={`https://www.gencon.com/events/${event.game_id.match(/\d+$/)?.[0]}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://www.gencon.com/events/{event.game_id.match(/\d+$/)?.[0]}
+            </a>
+          </p>
+        )}
+          <p>Event ID: {event.game_id}</p>
           {/* Display other key/value fields like your earlier detail view */}
       </div>
       <IconButton

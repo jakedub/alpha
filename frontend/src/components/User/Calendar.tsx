@@ -6,49 +6,42 @@ import {
 } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import '../Calendar/Calendar.css';
+import './Calendar.css';
 import { useState } from 'react';
 
 const localizer = momentLocalizer(moment);
 
-export const Calendar = (props: Omit<CalendarProps, 'localizer'>) => {
-  const [view, setView] = useState<typeof Views[keyof typeof Views]>(Views.MONTH);
-  const [date, setDate] = useState(moment("2025-08-01").toDate());
+interface CalendarEvent {
+  title: string;
+  description?: string;
+  start: Date;
+  end: Date;
+  category?: string;
+}
 
-  const events = [
-    {
-        title: 'Meeting with team',
-        description: 'Discuss project updates and timelines.',
-        start: new Date(2025, 7, 2, 14, 0),
-        end: new Date(2025, 7, 2, 15, 30),
-        allDay: false,
-        category: 'Engineering',
-        },
-    {
-      title: 'Design Review',
-      description: 'Review the new mockups for client feedback.',
-      start: new Date(2025, 7, 3, 10, 0),
-      end: new Date(2025, 7, 3, 11, 0),
-        allDay: false,
-        category: 'Design',
-    },
-  ];
+interface Props {
+  userEvents: CalendarEvent[];
+}
+
+export const Calendar = ({ userEvents }: Props) => {
+  const [view, setView] = useState<typeof Views[keyof typeof Views]>(Views.AGENDA);
+  const [date, setDate] = useState(moment("2025-07-31").toDate());
+  
 
   return (
-    <div style={{ height: '100vh', width: '150vh' }}>
+    <div style={{ height: '100vh', width: '100%' }}>
         <BigCalendar
-        {...props}
         localizer={localizer}
         date={date}
         onNavigate={(newDate) => setDate(newDate)}
         defaultDate={date} // optional once `date` is used
         scrollToTime={moment("2025-08-01T08:00:00").toDate()} // e.g., scroll to 8 AM
-        min={moment("2025-08-01T00:00:00").toDate()} // midnight
-        max={moment("2025-08-01T23:59:00").toDate()} // just before midnight
+        min={moment("2025-07-30T00:00:00").toDate()}
+        max={moment("2025-08-03T23:59:00").toDate()}
         view={view}
         onView={setView}
-        views={['month', 'week', 'day', 'agenda']}
-        events={events}
+        views={['week', 'day', 'agenda']}
+        events={userEvents}
         startAccessor="start"
         endAccessor="end"
         eventPropGetter={(event) => {

@@ -1,3 +1,5 @@
+import React from 'react';
+import qs from 'qs';
 import { useEffect, useState, useRef } from 'react';
 import api from '../../api/api';
 import { Event } from '../../models/events';
@@ -5,96 +7,121 @@ import styles from './Event.module.css';
 import { formatKey } from '../../utils/formatKey';
 import { Link } from 'react-router-dom';
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Typography,
   Box,
   IconButton,
   useTheme,
-  Button
+  Button,
+  Collapse,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Fab
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import React from 'react';
-
-import Collapse from '@mui/material/Collapse';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Fab from '@mui/material/Fab';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-
 import EventFilter from './EventFilter';
+import { Filters } from '../../types/filters';
 
 function Row({ row }: { row: Event }) {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [row.game_id]);
+
   const start = new Date(row.start_time);
   const end = new Date(row.end_time);
   const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
-  const [filters, setFilters] = useState({
-    event_type: '',
-    gameSystem: '',
-    day: '',
-    startTime: '',
-    group: '',
-    location: '',
-    ageRequirements: [] as string[],
-    experienceLevels: [] as string[],
-  });
+  const handleAddToSchedule = async (eventId: string) => {
+      try {
+        // Hit an endpoint that returns 200 + user info if logged in, 403/401 otherwise
+        const res = await api.get('/me/');
+        const isLoggedIn = res.status === 200;
+
+        if (!isLoggedIn) {
+          alert('You must be logged in to add this event to your schedule.');
+          return;
+        }
+
+        await api.post('/user_events/', {
+          event: eventId,
+          status: 'wishlist',
+        });
+
+        alert('Event added to your schedule!');
+      } catch (err: any) {
+        if (err.response?.status === 403 || err.response?.status === 401) {
+          alert('You must be logged in to add this event to your schedule.');
+        } else {
+          console.error('Error adding event:', err);
+          alert('Something went wrong. Please try again.');
+        }
+      }
+    };
 
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell>{row.event_type}</TableCell>
-        <TableCell>{row.title}
-          <IconButton component={Link}
-              to={`/events/${row.game_id}`}
-              aria-label="View event details"
-              sx={{
-                backgroundColor: theme.palette.background.paper,
-                borderRadius: '50%',
-                color: theme.palette.text.disabled,
-                padding: '8px',
-                '&:hover': {
-                  backgroundColor: '#c0c0c0',
-                },
-              }}
-            >
-          <OpenInNewIcon />
-        </IconButton>
+        <TableCell>
+          {row.title}
+          <IconButton
+            component={Link}
+            to={`/events/${row.game_id}`}
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: '50%',
+              color: theme.palette.text.disabled,
+              padding: '8px',
+              '&:hover': { backgroundColor: '#c0c0c0' }
+            }}
+          >
+            <OpenInNewIcon />
+          </IconButton>
         </TableCell>
         <TableCell>{start.toLocaleString()}</TableCell>
         <TableCell>{durationMinutes.toFixed(0)} min</TableCell>
         <TableCell>${row.cost}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="subtitle1" gutterBottom component="div">
-                Description
-              </Typography>
+              <Typography variant="subtitle1" gutterBottom>Description</Typography>
               <Typography>{row.short_description}</Typography>
-              <Typography sx={{ marginTop: 1 }}><strong>Location:</strong> {row.location.name}</Typography>
-            </Box>
+              <Typography sx={{ marginTop: 1 }}>
+                <strong>Location:</strong> {row.location.name}
+              </Typography>
+              <Typography>
+                <Button
+  variant="outlined"
+  size="small"
+  onClick={() => {
+    if (!row.game_id) {
+      alert('Missing event ID. Please try another event.');
+      return;
+    }
+    handleAddToSchedule(row.game_id);
+  }}
+>
+  Add to Schedule
+</Button></Typography>
+                          </Box>
           </Collapse>
         </TableCell>
       </TableRow>
@@ -104,72 +131,91 @@ function Row({ row }: { row: Event }) {
 
 function CollapsibleTable({ events }: { events: Event[] }) {
   return (
-    <TableContainer component={Paper} sx={{ marginBottom: 4 }}>
-      <Table aria-label="event table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Type</TableCell>
-            <TableCell>Title</TableCell>
-            <TableCell>Start Time</TableCell>
-            <TableCell>Duration</TableCell>
-            <TableCell>Cost</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {events.map((event) => (
-            <Row key={event.game_id} row={event} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box>
+      <Typography variant="subtitle2" sx={{ padding: 2 }}>
+        Showing {events.length} events
+      </Typography>
+      <TableContainer component={Paper} sx={{ marginBottom: 4 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Type</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Start Time</TableCell>
+              <TableCell>Duration</TableCell>
+              <TableCell>Cost</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {events.map((event) => (
+              <Row key={`${event.game_id}-${event.start_time}`} row={event} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 
-const EventList = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+const EventList = ({ events: initialEvents = [] }: { events?: Event[] }) => {
+  const [events, setEvents] = useState<Event[]>(initialEvents);
   const [error, setError] = useState<string | null>(null);
-  const theme = useTheme();
+  const [filters, setFilters] = useState<Filters>({
+    eventTypes: [],
+    gameSystems: [],
+    days: [],
+    groups: [],
+    locations: [],
+    startTimes: [],
+    ageRequirements: [],
+    experienceLevels: [],
+  });
 
-const [page, setPage] = useState(1);
-const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-const [scrollPosition, setScrollPosition] = useState(0);
-const [loadingMore, setLoadingMore] = useState(false);
+  const topRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
 useEffect(() => {
-  api.get(`/events/?page=${page}`)
-    .then(res => {
+  const params: Record<string, string | string[] | number> = { page: 1 };
+
+  if (filters.eventTypes.length) params.event_type = filters.eventTypes;
+  if (filters.gameSystems.length) params.game_system = filters.gameSystems;
+  if (filters.days.length) params.day = filters.days;
+  if (filters.groups.length) params.gaming_group = filters.groups;
+  if (filters.locations.length) params.location = filters.locations
+  if (filters.startTimes.length) params.start_time = filters.startTimes;
+  if (filters.ageRequirements.length) params.minimum_age = filters.ageRequirements;
+  if (filters.experienceLevels.length) params.experience_required = filters.experienceLevels;
+
+
+  api
+    .get('/events/', {
+      params,
+      paramsSerializer: (params) =>
+        qs.stringify(params, { arrayFormat: 'repeat' }), // key change here
+    })
+    .then((res) => {
       const newEvents = Array.isArray(res.data?.results)
         ? res.data.results
         : Array.isArray(res.data)
         ? res.data
         : [];
-      setEvents(prev => [...prev, ...newEvents]);
+      setEvents(newEvents);
       setHasMore(!!res.data?.next);
-      if (loadingMore) {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }
+      setTotalCount(res.data?.count || 0);
+      setPage(1);
+      if (loadingMore) scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     })
     .catch(() => setError('Failed to load event list.'));
-}, [page]);
-
-  // Refs for scrolling
-  const topRef = useRef<HTMLDivElement | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const handleScrollToBottom = () => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setLoadingMore(false);
-  };
-  const handleScrollToTop = () => {
-    topRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+}, [filters]);
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
+    const handleScroll = () => setScrollPosition(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -183,27 +229,21 @@ useEffect(() => {
       <div>
         {error && <p>{error}</p>}
         <Box>
-          <EventFilter events={events} />
-          <CollapsibleTable events={events} />
-          <Box textAlign="center" marginBottom={2}>
+          <EventFilter events={events} filters={filters} onFilterChange={setFilters} />
+          <Box sx={{ marginTop: 2 }}>
+            <Typography variant="body2">Total Events: {totalCount}</Typography>
           </Box>
+          <CollapsibleTable key={events.map(e => e.game_id).join(',')} events={events} />
           <div ref={scrollRef} />
           {hasMore && (
-            <Box textAlign="center" marginTop={2}>
+            <Box textAlign="center" mt={2}>
               <Button
                 onClick={() => {
-                  setPage(prev => prev + 1);
+                  setPage((prev) => prev + 1);
                   setLoadingMore(true);
                 }}
-                style={{
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                sx={{ padding: '10px 20px', fontSize: '16px' }}
+                variant="contained"
               >
                 Load More
               </Button>
@@ -214,7 +254,7 @@ useEffect(() => {
           <Fab
             color="primary"
             aria-label="scroll down"
-            onClick={handleScrollToBottom}
+            onClick={() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' })}
             sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1200 }}
           >
             <ArrowDownwardIcon />
@@ -223,7 +263,7 @@ useEffect(() => {
           <Fab
             color="secondary"
             aria-label="scroll up"
-            onClick={handleScrollToTop}
+            onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
             sx={{ position: 'fixed', bottom: 80, right: 16, zIndex: 1200 }}
           >
             <ArrowUpwardIcon />
@@ -234,4 +274,7 @@ useEffect(() => {
   );
 };
 
+export const EventTable = ({ events }: { events: Event[] }) => {
+  return <EventList events={events} />;
+};
 export default EventList;

@@ -2,10 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Button,
-  Container,
   CssBaseline,
-  Divider,
   Drawer,
   IconButton,
   List,
@@ -13,81 +10,52 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  patch,
   styled,
-  Typography,
   useTheme,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import GroupIcon from '@mui/icons-material/Group';
 import EventIcon from '@mui/icons-material/Event';
 import StadiumRoundedIcon from '@mui/icons-material/StadiumRounded';
-import { blue, pink } from '@mui/material/colors';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { blue, green, pink } from '@mui/material/colors';
+import { useAuth } from '../../auth/AuthContext';
+import api from '../../api/api';
 
-// Animated hamburger icon that morphs into an "X"
 const HamburgerToggle = ({ isOpen }: { isOpen: boolean }) => (
   <Box
     component={motion.div}
     animate={isOpen ? 'open' : 'closed'}
-    sx={{
-      width: 24,
-      height: 24,
-      position: 'relative',
-    }}
+    sx={{ width: 24, height: 24, position: 'relative' }}
   >
     <Box
       component={motion.span}
-      variants={{
-        open: { rotate: 45, top: '50%' },
-        closed: { rotate: 0, top: 4 },
-      }}
+      variants={{ open: { rotate: 45, top: '50%' }, closed: { rotate: 0, top: 4 } }}
       transition={{ duration: 0.3 }}
       sx={{
-        position: 'absolute',
-        left: 0,
-        width: '100%',
-        height: 2,
-        bgcolor: 'currentColor',
-        borderRadius: 1,
-        transformOrigin: 'center',
+        position: 'absolute', left: 0, width: '100%', height: 2, bgcolor: 'currentColor',
+        borderRadius: 1, transformOrigin: 'center',
       }}
     />
     <Box
       component={motion.span}
-      variants={{
-        open: { opacity: 0 },
-        closed: { opacity: 1 },
-      }}
+      variants={{ open: { opacity: 0 }, closed: { opacity: 1 } }}
       transition={{ duration: 0.3 }}
       sx={{
-        position: 'absolute',
-        top: '50%',
-        left: 0,
-        width: '100%',
-        height: 2,
-        bgcolor: 'currentColor',
-        borderRadius: 1,
-        transform: 'translateY(-50%)',
+        position: 'absolute', top: '50%', left: 0, width: '100%', height: 2,
+        bgcolor: 'currentColor', borderRadius: 1, transform: 'translateY(-50%)',
       }}
     />
     <Box
       component={motion.span}
-      variants={{
-        open: { rotate: -45, top: '50%' },
-        closed: { rotate: 0, top: 16 },
-      }}
+      variants={{ open: { rotate: -45, top: '50%' }, closed: { rotate: 0, top: 16 } }}
       transition={{ duration: 0.3 }}
       sx={{
-        position: 'absolute',
-        left: 0,
-        width: '100%',
-        height: 2,
-        bgcolor: 'currentColor',
-        borderRadius: 1,
-        transformOrigin: 'center',
+        position: 'absolute', left: 0, width: '100%', height: 2, bgcolor: 'currentColor',
+        borderRadius: 1, transformOrigin: 'center',
       }}
     />
   </Box>
@@ -107,29 +75,43 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { user } = useAuth();
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  const handleLogout = async () => {
+    try {
+      const res = await api.post('/logout/');
+      console.log('Logout response:', res.data);
+      navigate('/login');
+      window.location.reload();
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
+
+  const drawerItems = [
+    { text: 'Home', path: '/', icon: <HomeIcon /> },
+    !user && { text: 'Login', path: '/login', icon: <LoginIcon /> },
+    { text: 'All Events', path: '/events', icon: <EventIcon /> },
+    { text: 'All Users', path: '/users', icon: <GroupIcon sx={{ color: green }} /> },
+    user && { text: 'Dashboard', path: '/dashboard', icon: <GroupIcon sx={{ color: blue[500] }} /> },
+    user && { text: 'Scheduler', path: '/scheduler', icon: <HomeIcon sx={{ color: blue[500] }} /> },
+    { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon /> },
+    { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
+    { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }} /> },
+    user && { text: 'Logout', action: handleLogout, icon: <LogoutIcon /> },
+  ].filter(Boolean);
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ mt: 6 }}>
         <List>
-          {[
-            { text: 'Home', path: '/', icon: <HomeIcon /> },
-            { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
-            { text: 'Users', path: '/users', icon: <GroupIcon /> },
-            { text: 'User Preferences', path: '/user-preferences', icon: <GroupIcon sx={{color: blue}}/> },
-            { text: 'Events', path: '/events', icon: <EventIcon/>},
-            { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon/>},
-            { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }}/>}
-          ].map((item) => (
+          {drawerItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
                 sx={{ textAlign: 'left' }}
-                onClick={() => navigate(item.path)}
+                onClick={() => item.action ? item.action() : navigate(item.path!)}
               >
                 <ListItemIcon sx={{ color: theme.palette.text.primary }}>
                   {item.icon}
@@ -144,7 +126,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: theme.palette.background.default}}>
+    <Box sx={{ display: 'flex', backgroundColor: theme.palette.background.default }}>
       <CssBaseline />
       <motion.div
         animate={{ x: mobileOpen ? drawerWidth + 10 : 0 }}
@@ -171,19 +153,19 @@ const Layout = ({ children }: { children: ReactNode }) => {
           <HamburgerToggle isOpen={mobileOpen} />
         </IconButton>
       </motion.div>
+
       <Box component="nav">
         <StyledDrawer
           key={theme.palette.mode}
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
+          ModalProps={{ keepMounted: true }}
         >
           {drawer}
         </StyledDrawer>
       </Box>
+
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         {children}
       </Box>

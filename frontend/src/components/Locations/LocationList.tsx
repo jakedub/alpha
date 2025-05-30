@@ -16,7 +16,6 @@ const LocationList = () => {
     useEffect(() => {
     api.get('/locations/')
         .then(res => {
-        console.log('Fetched locations:', res.data.results); // Log just the results array
         setLocations(res.data.results); // <-- FIX: assign results array, not the full object
         })
         .catch(() => setError('Failed to load locations.'));

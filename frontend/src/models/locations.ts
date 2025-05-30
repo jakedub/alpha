@@ -1,7 +1,4 @@
-export interface Room {
-  room_name: string;
-  floor_level: string;
-}
+import { Room } from "./rooms";
 
 export interface Location {
   id: number;
