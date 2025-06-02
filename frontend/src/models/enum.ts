@@ -24,3 +24,13 @@ export const StairPreferenceOptions = [
   { value: 'elevator', label: 'Prefer Elevator' },
   { value: 'no_preference', label: 'No Preference' },
 ];
+
+export const ColorOptions = [
+  { value: "#00F0FF", label: "Electric Blue" },
+  { value: "#00FF81", label: "Green" },
+  { value: "#FFA900", label: "Orange" },
+  { value: "#FF6800", label: "Pumpkin" },
+  { value: "#6F2DBD", label: "Purple" }, // Fixed typo: removed extra '#'
+] as const;
+
+export type ColorCode = typeof ColorOptions[number]['value'];

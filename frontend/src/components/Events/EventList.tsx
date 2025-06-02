@@ -31,7 +31,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import EventFilter from './EventFilter';
 import { Filters } from '../../types/filters';
 
-function Row({ row }: { row: Event }) {
+function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId: number) => void }) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
 
@@ -42,32 +42,36 @@ function Row({ row }: { row: Event }) {
   const start = new Date(row.start_time);
   const end = new Date(row.end_time);
   const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+
   const handleAddToSchedule = async (eventId: string) => {
-      try {
-        // Hit an endpoint that returns 200 + user info if logged in, 403/401 otherwise
-        const res = await api.get('/me/');
-        const isLoggedIn = res.status === 200;
+    try {
+      const res = await api.get('/me/');
+      const isLoggedIn = res.status === 200;
 
-        if (!isLoggedIn) {
-          alert('You must be logged in to add this event to your schedule.');
-          return;
-        }
-
-        await api.post('/user_events/', {
-          event: eventId,
-          status: 'wishlist',
-        });
-
-        alert('Event added to your schedule!');
-      } catch (err: any) {
-        if (err.response?.status === 403 || err.response?.status === 401) {
-          alert('You must be logged in to add this event to your schedule.');
-        } else {
-          console.error('Error adding event:', err);
-          alert('Something went wrong. Please try again.');
-        }
+      if (!isLoggedIn) {
+        alert('You must be logged in to add this event to your schedule.');
+        return;
       }
-    };
+
+      await api.post('/user_events/', {
+        event: eventId,
+        status: 'wishlist',
+      });
+
+      alert('Event added to your schedule!');
+
+      if (onAddToCalendar) {
+        onAddToCalendar(Number(eventId));
+      }
+    } catch (err: any) {
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        alert('You must be logged in to add this event to your schedule.');
+      } else {
+        console.error('Error adding event:', err);
+        alert('Something went wrong. Please try again.');
+      }
+    }
+  };
 
   return (
     <>
@@ -109,27 +113,33 @@ function Row({ row }: { row: Event }) {
               </Typography>
               <Typography>
                 <Button
-  variant="outlined"
-  size="small"
-  onClick={() => {
-    if (!row.game_id) {
-      alert('Missing event ID. Please try another event.');
-      return;
-    }
-    handleAddToSchedule(row.game_id);
-  }}
->
-  Add to Schedule
-</Button></Typography>
-                          </Box>
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    if (!row.game_id) {
+                      alert('Missing event ID. Please try another event.');
+                      return;
+                    }
+                    handleAddToSchedule(row.game_id);
+                  }}
+                >
+                  Add to Schedule
+                </Button>
+              </Typography>
+            </Box>
           </Collapse>
         </TableCell>
       </TableRow>
     </>
   );
 }
-
-function CollapsibleTable({ events }: { events: Event[] }) {
+function CollapsibleTable({
+  events,
+  onAddToCalendar,
+}: {
+  events: Event[];
+  onAddToCalendar?: (eventId: number) => void;
+}) {
   return (
     <Box>
       <Typography variant="subtitle2" sx={{ padding: 2 }}>
@@ -158,7 +168,13 @@ function CollapsibleTable({ events }: { events: Event[] }) {
   );
 }
 
-const EventList = ({ events: initialEvents = [] }: { events?: Event[] }) => {
+const EventList = ({
+  events: initialEvents = [],
+  onAddToCalendar,
+}: {
+  events?: Event[];
+  onAddToCalendar?: (eventId: number) => void;
+}) => {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
@@ -171,7 +187,6 @@ const EventList = ({ events: initialEvents = [] }: { events?: Event[] }) => {
     ageRequirements: [],
     experienceLevels: [],
   });
-
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -274,7 +289,13 @@ useEffect(() => {
   );
 };
 
-export const EventTable = ({ events }: { events: Event[] }) => {
-  return <EventList events={events} />;
+export const EventTable = ({
+  events,
+  onAddToCalendar,
+}: {
+  events: Event[];
+  onAddToCalendar?: (eventId: number) => void;
+}) => {
+  return <EventList events={events} onAddToCalendar={onAddToCalendar} />;
 };
 export default EventList;

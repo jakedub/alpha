@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Grid,
   Button,
@@ -24,37 +24,69 @@ import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/api';
 import { User } from '../../models/user';
 import { UserEvent } from '../../models/user_event';
+import { ColorCode, ColorOptions } from '../../models/enum';
+import { CalendarEvent } from '../../models/calendar';
 
 const UserDetail = () => {
   const { user, loading } = useAuth();
   const [mobilityAid, setMobilityAid] = useState('');
   const [stairPreference, setStairPreference] = useState('');
+  const [color_code, setColorCode] = useState('');
   const [message, setMessage] = useState('');
   const theme = useTheme();
+  
 
   if (loading) return <CircularProgress />;
   if (!user) return <Typography>You are not logged in.</Typography>;
 
-  const calendarEvents = user?.user_events?.map((ue: UserEvent) => ({
-    title: ue.event_title,
-    description: ue.event_short_description,
-    start: new Date(ue.event_start_time),
-    end: new Date(ue.event_end_time),
-    category: ue.status,
-  })) ?? [];
+ const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+useEffect(() => {
+  if (user?.user_events) {
+    const events = user.user_events.map((ue: UserEvent) => ({
+      title: ue.event_title,
+      description: ue.event_short_description,
+      start: new Date(ue.event_start_time),
+      end: new Date(ue.event_end_time),
+      category: ue.status,
+      color: user.color_code || '#1976d2'
+    }));
+    setCalendarEvents(events);
+  }
+}, [user]);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  console.log("Submitting:", {
+    mobility_aid: mobilityAid,
+    stair_preference: stairPreference,
+    color_code: color_code
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.patch(`/users/${user.id}/`, {
-        mobility_aid: mobilityAid,
-        stair_preference: stairPreference,
-      });
-      setMessage('Preferences updated successfully!');
-    } catch {
-      setMessage('Error updating preferences.');
-    }
-  };
+  try {
+    const response = await api.patch(`/users/${user?.id}/`, {
+      mobility_aid: mobilityAid || null,
+      stair_preference: stairPreference || null,
+      color_code: color_code || null
+    });
+
+    setMessage('Preferences updated successfully!');
+
+    // 🔁 Regenerate the calendar events using the new color_code
+    const updatedEvents = user.user_events?.map((ue: UserEvent) => ({
+      title: ue.event_title,
+      description: ue.event_short_description,
+      start: new Date(ue.event_start_time),
+      end: new Date(ue.event_end_time),
+      category: ue.status,
+      color: color_code || '#1976d2',
+    })) ?? [];
+
+    setCalendarEvents(updatedEvents); // ✅ this will re-render the calendar with new colors
+
+  } catch {
+    setMessage('Error updating preferences.');
+  }
+};
+  
 
   return (
     <Box sx={{ overflowX: 'hidden', width: '75vw', margin: '0 auto', padding: 2 }}>
@@ -128,6 +160,21 @@ const UserDetail = () => {
                   <MenuItem value="elevator">Prefer Elevator</MenuItem>
                   <MenuItem value="no_preference">No Preference</MenuItem>
                 </Select>
+              </FormControl >
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>User Color Preference</InputLabel>
+                  <Select
+                    value={color_code}
+                    onChange={(e) => setColorCode(e.target.value)}
+                    label="Schedule Color"
+                  >
+                    {ColorOptions.map((color) => (
+                      <MenuItem key={color.value} value={color.value}>
+                        <Box sx={{ display: 'inline-block', width: 16, height: 16, backgroundColor: color.value, mr: 1, borderRadius: '50%' }} />
+                        {color.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
               </FormControl>
 
               <Button type="submit" variant="contained">Save Preferences</Button>

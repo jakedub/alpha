@@ -2,21 +2,40 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../api/api';
 
-const AuthContext = createContext<{ user: any, loading: boolean }>({ user: null, loading: true });
+interface AuthContextType {
+  user: any;
+  loading: boolean;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  refreshUser: async () => {},
+});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/me/');
+      setUser(res.data);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api.get('/me/')
-      .then(res => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    refreshUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

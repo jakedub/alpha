@@ -17,6 +17,7 @@ interface CalendarEvent {
   start: Date;
   end: Date;
   category?: string;
+  color?: string;
 }
 
 interface Props {
@@ -45,16 +46,7 @@ export const Calendar = ({ userEvents }: Props) => {
         startAccessor="start"
         endAccessor="end"
         eventPropGetter={(event) => {
-          let backgroundColor = '#1976d2';
-
-          if (event.category === 'Design') {
-            backgroundColor = '#9c27b0';
-          } else if (event.category === 'Engineering') {
-            backgroundColor = '#388e3c';
-          } else if (event.category === 'Marketing') {
-            backgroundColor = '#f57c00';
-          }
-
+          const backgroundColor = event.color || '#1976d2';
           return {
             style: {
               backgroundColor,

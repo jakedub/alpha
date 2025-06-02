@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useAuth } from '../../auth/AuthContext';
 
 const Login = () => {
   const theme = useTheme();
@@ -22,6 +23,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const toggleShowPassword = () => setShowPassword(prev => !prev);
 
@@ -53,7 +55,10 @@ const Login = () => {
         email: identifier, // backend expects 'email', even if it's a username
         password,
       });
-      navigate('/dashboard');
+      if (res.data.status === 'ok') {
+        await refreshUser();
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       if (err.response) {
         console.error('Login failed with response:', err.response.data);
