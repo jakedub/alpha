@@ -53,31 +53,42 @@ useEffect(() => {
     [(maxY + 1) * tileSize, (maxX + 1) * tileSize],
   ];
 
-  return (
-    <MapContainer
-      crs={L.CRS.Simple}
-      bounds={bounds}
-      style={{ width: '100vw', height: '100vh' }}
-      zoom={0}
-      scrollWheelZoom={true}
-    >
-      {tiles.map(([x, y]) => {
-        const imageUrl = `/proxy/tiles/${currentFloor}/${zoom}/${x}/${y}.png`;
-        const tileBounds: LatLngBoundsExpression = [
-          [y * tileSize, x * tileSize],
-          [(y + 1) * tileSize, (x + 1) * tileSize],
-        ];
-        return (
+return (
+  <MapContainer
+    crs={L.CRS.Simple}
+    bounds={[
+      [0, 0],
+      [(maxY + 1) * tileSize, (maxX + 1) * tileSize],
+    ]}
+    zoom={0}
+    scrollWheelZoom={true}
+    style={{ width: '100vw', height: '100vh' }}
+  >
+    {tiles.map(([x, y]) => {
+      const top = y * tileSize;
+      const left = x * tileSize;
+      const totalRows = maxY - minY + 1;
+      const flippedY = totalRows - 1 - (y - minY);
+      const leafletTop = flippedY * tileSize;
+      const imageUrl = `/proxy/tiles/${currentFloor}/${zoom}/${x}/${y}.png`;
+      const tileBounds: LatLngBoundsExpression = [
+        [leafletTop, left],
+        [leafletTop + tileSize, left + tileSize],
+      ];
+      return (
+        <>
           <ImageOverlay
             key={`${x}-${y}`}
             url={imageUrl}
             bounds={tileBounds}
             zIndex={1}
+            opacity={0.9}
           />
-        );
-      })}
-
-
-    </MapContainer>
-  );
+          
+            {`(${x}, ${y})`}
+        </>
+      );
+    })}
+  </MapContainer>
+);
 }
