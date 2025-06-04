@@ -19,6 +19,7 @@ import { Calendar } from './components/User/Calendar';
 import { LightbulbOutlined } from '@mui/icons-material';
 import Login from './components/User/Login';
 import ProtectedRoute from './auth/ProtectedRoute';
+import GenConMap from './components/Map/GenConMap';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -53,6 +54,7 @@ function App() {
                 </ProtectedRoute>
               } />
             <Route path="/login" element={<Login />} />
+            <Route path="/map" element={<GenConMap />} />
           </Routes>
         </Layout>
       </Router>

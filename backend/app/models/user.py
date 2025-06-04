@@ -33,6 +33,20 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('no_preference', 'No Preference'),
     ]
 
+    COLOR_CHOICES = [
+        ("#00F0FF", "Electric Blue"),
+        ("#00FF81", "Green"),
+        ("#FFA900", "Orange"),
+        ("#FF6800", "Pumpkin"),
+        ("#6F2DBD", "Purple")
+    ]
+
+    color_code = models.CharField(
+    max_length=24,
+    choices=COLOR_CHOICES,
+    default="#00F0FF",  # fallback color
+    )
+
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
     mobility_aid = MultiSelectField(choices=MOBILITY_CHOICES, default='none')

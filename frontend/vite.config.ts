@@ -7,7 +7,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000', // ← use IPv4 explicitly
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: 'localhost',
+      },
+      '/proxy': {
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
         cookieDomainRewrite: 'localhost',
