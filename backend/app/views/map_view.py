@@ -23,7 +23,6 @@ if TILE_FILE_PATH.exists():
             try:
                 parts = url.split("maps/v7/")[-1].replace(".png", "")
                 VALID_TILE_SET.add(parts)
-                print(f"✅ Valid tile added: {parts}")
             except Exception as e:
                 print(f"⚠️ Error parsing line: {url} -> {e}")
 else:

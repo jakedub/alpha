@@ -7,18 +7,24 @@ from .models.user import User
 from .models.room import Room
 from .models.entrance import Entrance
 from .models.user_event import UserEvent
+from .models.related_user import RelatedUser
 from django import forms
 
 admin.site.register(Event)
 admin.site.register(Route)
 
+class RelatedUSerInLine(admin.TabularInline):
+    model = RelatedUser
+    extra = 0
+
 class UserEventInline(admin.TabularInline):
     model = UserEvent
     extra = 0
+    filter_horizontal = ['related_users']
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    inlines = [UserEventInline]
+    inlines = [UserEventInline, RelatedUSerInLine]
 
 class MapPickerMixin(forms.ModelForm):
     latitude_field_name = 'latitude'

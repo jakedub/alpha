@@ -7,6 +7,7 @@ from .views.location_view import LocationViewSet
 from .views.user_view import UserViewSet
 from .views.room_view import RoomViewSet
 from .views.entrance_view import EntranceViewSet
+from .views.related_user_view import RelatedUserViewSet
 
 from .views.upload_view import upload_csv
 
@@ -17,6 +18,7 @@ router.register(r'users', UserViewSet)
 router.register(r'rooms', RoomViewSet)
 router.register(r'entrance', EntranceViewSet)
 router.register(r'user_events', UserEventViewSet)
+router.register(r'related_users', RelatedUserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

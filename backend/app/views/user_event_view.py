@@ -16,5 +16,13 @@ class UserEventViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+        event = serializer.validated_data.get("event")
+
+        existing = UserEvent.objects.filter(user=user, event=event).first()
+        if existing:
+            print(f"⚠️ UserEvent already exists for user {user} and event {event}")
+            serializer.instance = existing
+            return
+
         print(f"➕ Creating UserEvent for user: {user} | Authenticated: {user.is_authenticated}")
         serializer.save(user=user)

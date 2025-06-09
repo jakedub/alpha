@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
 from multiselectfield import MultiSelectField
+from app.models.related_user import RelatedUser
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -34,7 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     COLOR_CHOICES = [
-        ("#00F0FF", "Electric Blue"),
+        ("#00F0FF", "Blue"),
         ("#00FF81", "Green"),
         ("#FFA900", "Orange"),
         ("#FF6800", "Pumpkin"),
