@@ -20,6 +20,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import EventIcon from '@mui/icons-material/Event';
 import StadiumRoundedIcon from '@mui/icons-material/StadiumRounded';
 import LoginIcon from '@mui/icons-material/Login';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { blue, green, pink, purple } from '@mui/material/colors';
 import RoomSharpIcon from '@mui/icons-material/RoomSharp';
@@ -93,15 +94,18 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   const drawerItems = [
     { text: 'Home', path: '/', icon: <HomeIcon /> },
+    { text: 'Event Route Map', path: '/event-route-map', icon: <RoomSharpIcon sx={{ color: purple[500] }} /> },
     !user && { text: 'Login', path: '/login', icon: <LoginIcon /> },
     { text: 'All Events', path: '/events', icon: <EventIcon /> },
+    // { text: 'Calendar 1', path: '/fullcalendar', icon: <CalendarMonthIcon /> },
+    { text: 'Calendar', path: '/fullcalendar2', icon: <CalendarMonthIcon sx={{ color: blue[500] }}/> },
     { text: 'All Users', path: '/users', icon: <GroupIcon sx={{ color: green }} /> },
     user && { text: 'Dashboard', path: '/dashboard', icon: <GroupIcon sx={{ color: blue[500] }} /> },
     user && { text: 'Scheduler', path: '/scheduler', icon: <HomeIcon sx={{ color: blue[500] }} /> },
     { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon /> },
     { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
-    { text: 'Map', path:'/map', icon: <RoomSharpIcon sx={{ color: purple[500] }} />},
-    { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }} /> },
+    // { text: 'Map', path:'/map', icon: <RoomSharpIcon sx={{ color: purple[500] }} />},
+    // { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }} /> },
     user && { text: 'Logout', action: handleLogout, icon: <LogoutIcon /> },
   ].filter(Boolean);
 

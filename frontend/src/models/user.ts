@@ -1,8 +1,6 @@
 import { MobilityAid, StairPreference, UserEventStatus, EventType, AgeRequired, ExperienceRequired, ColorCode} from './enum';
 import { UserEvent } from './user_event';
-import { Location } from './locations';
-import { Room } from './rooms';
-import { Event } from './events';
+import { RelatedUser } from './related_user';
 
 export interface User {
   results(arg0: string, results: any): unknown;
@@ -12,5 +10,6 @@ export interface User {
   mobility_aid: MobilityAid;
   stair_preference: StairPreference;
   user_events?: UserEvent[];
+  related_users?: RelatedUser[];
   color_code: ColorCode;
 }

@@ -8,4 +8,9 @@ export interface UserEvent {
   event_short_description: string;
   event_start_time: string;
   event_end_time: string;
+  id: number;
+  self_assigned: boolean;
+  event_location: string;
+  event_latitude: number;
+  event_longitude: number;
 }

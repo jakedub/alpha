@@ -1,10 +1,12 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../api/api';
+import { User } from '../models/user';
 
 interface AuthContextType {
   user: any;
   loading: boolean;
+  setUser?: (user: User) => void;
   refreshUser: () => Promise<void>;
 }
 
@@ -35,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -61,3 +61,4 @@ INDOOR_LOCATIONS = {
 
 def get_indoor_location(name):
     return INDOOR_LOCATIONS.get(name)
+

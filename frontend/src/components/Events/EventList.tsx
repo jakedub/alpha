@@ -30,8 +30,22 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import EventFilter from './EventFilter';
 import { Filters } from '../../types/filters';
+import Snackbar from '@mui/material/Snackbar';
 
-function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId: number) => void }) {
+
+function Row({
+  row,
+  onAddToCalendar,
+  showSnackbar,
+  selectedEventIds,
+  refreshUserEvents,
+}: {
+  row: Event;
+  onAddToCalendar?: (eventId: number) => void;
+  showSnackbar: (message: string) => void;
+  selectedEventIds: Set<string>;
+  refreshUserEvents: () => Promise<void>;
+}) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
 
@@ -39,17 +53,25 @@ function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId:
     setOpen(false);
   }, [row.game_id]);
 
+  useEffect(() => {
+  }, [selectedEventIds, row.game_id]);
+
   const start = new Date(row.start_time);
   const end = new Date(row.end_time);
   const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
 
+
   const handleAddToSchedule = async (eventId: string) => {
+    if (selectedEventIds.has(eventId)) {
+      showSnackbar('Event is already scheduled');
+      return;
+    }
     try {
       const res = await api.get('/me/');
       const isLoggedIn = res.status === 200;
 
       if (!isLoggedIn) {
-        alert('You must be logged in to add this event to your schedule.');
+        showSnackbar('You must be logged in to add this event');
         return;
       }
 
@@ -57,24 +79,48 @@ function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId:
         event: eventId,
         status: 'wishlist',
       });
+      await refreshUserEvents();
+      showSnackbar('Event has been added');
 
-      alert('Event added to your schedule!');
-
+      // Removed debug log for event addition
       if (onAddToCalendar) {
         onAddToCalendar(Number(eventId));
       }
     } catch (err: any) {
       if (err.response?.status === 403 || err.response?.status === 401) {
-        alert('You must be logged in to add this event to your schedule.');
+        showSnackbar('You must be logged in to add this event');
       } else {
         console.error('Error adding event:', err);
-        alert('Something went wrong. Please try again.');
+        showSnackbar('Oops a doodle');
       }
+    }
+  };
+
+  const handleRemoveFromSchedule = async (eventId: string) => {
+    try {
+      const res = await api.get('/user_events/');
+      // Use event_game_id for the match!
+      const matching = res.data.results
+        ? res.data.results.find((ue: any) => ue.event_game_id === eventId)
+        : res.data.find((ue: any) => ue.event_game_id === eventId);
+
+      if (!matching) {
+        showSnackbar('Event not found in your schedule');
+        return;
+      }
+
+      await api.delete(`/user_events/${matching.id}/`);
+      await refreshUserEvents();
+      showSnackbar('Event has been removed');
+    } catch (err) {
+      console.error('Error removing event:', err);
+      showSnackbar('Failed to remove event');
     }
   };
 
   return (
     <>
+
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
@@ -111,21 +157,33 @@ function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId:
               <Typography sx={{ marginTop: 1 }}>
                 <strong>Location:</strong> {row.location.name}
               </Typography>
-              <Typography>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => {
-                    if (!row.game_id) {
-                      alert('Missing event ID. Please try another event.');
-                      return;
-                    }
-                    handleAddToSchedule(row.game_id);
-                  }}
-                >
-                  Add to Schedule
-                </Button>
-              </Typography>
+                <Typography>
+                  {selectedEventIds.has(row.game_id!.toString()) ? (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                      onClick={() => handleRemoveFromSchedule(row.game_id!.toString())}
+                    >
+                      Remove Event
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      disabled={selectedEventIds.has(row.game_id!.toString())}
+                      onClick={() => {
+                        if (!row.game_id) {
+                          alert('Missing event ID. Please try another event.');
+                          return;
+                        }
+                        handleAddToSchedule(row.game_id!.toString());
+                      }}
+                    >
+                      Add to Schedule
+                    </Button>
+                  )}
+                </Typography>
             </Box>
           </Collapse>
         </TableCell>
@@ -136,9 +194,15 @@ function Row({ row, onAddToCalendar }: { row: Event; onAddToCalendar?: (eventId:
 function CollapsibleTable({
   events,
   onAddToCalendar,
+  showSnackbar,
+  selectedEventIds,
+  refreshUserEvents,
 }: {
   events: Event[];
   onAddToCalendar?: (eventId: number) => void;
+  showSnackbar: (message: string) => void;
+  selectedEventIds: Set<string>;
+  refreshUserEvents: () => Promise<void>;
 }) {
   return (
     <Box>
@@ -159,12 +223,20 @@ function CollapsibleTable({
           </TableHead>
           <TableBody>
             {events.map((event) => (
-              <Row key={`${event.game_id}-${event.start_time}`} row={event} />
+              <Row
+                key={`${event.game_id}-${event.start_time}`}
+                row={event}
+                onAddToCalendar={onAddToCalendar}
+                showSnackbar={showSnackbar}
+                selectedEventIds={selectedEventIds}
+                refreshUserEvents={refreshUserEvents}
+              />
             ))}
           </TableBody>
         </Table>
       </TableContainer>
     </Box>
+    
   );
 }
 
@@ -192,6 +264,35 @@ const EventList = ({
   const [totalCount, setTotalCount] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [userEvents, setUserEvents] = useState<any[]>([]);
+    // Move refreshUserEvents to top-level in EventList
+const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
+
+const refreshUserEvents = async () => {
+  try {
+    const res = await api.get('/user_events/');
+    const results = res.data.results || [];
+    setUserEvents(results);
+    const ids = new Set<string>();
+    results.forEach((ue: any) => {
+      // Prefer event_game_id, fallback to event
+      if (ue.event_game_id) {
+        ids.add(ue.event_game_id);
+      } else if (ue.event !== undefined && ue.event !== null) {
+        ids.add(ue.event.toString());
+      }
+    });
+    setSelectedEventIds(ids);
+  } catch (err) {
+    // Removed warning log for user events fetch failure
+  }
+};
+
+useEffect(() => {
+  refreshUserEvents();
+}, []);
 
   const topRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -248,7 +349,16 @@ useEffect(() => {
           <Box sx={{ marginTop: 2 }}>
             <Typography variant="body2">Total Events: {totalCount}</Typography>
           </Box>
-          <CollapsibleTable key={events.map(e => e.game_id).join(',')} events={events} />
+          <CollapsibleTable
+            events={events}
+            onAddToCalendar={onAddToCalendar}
+            showSnackbar={(message) => {
+              setSnackbarMessage(message);
+              setSnackbarOpen(true);
+            }}
+            selectedEventIds={selectedEventIds}
+            refreshUserEvents={refreshUserEvents}
+          />
           <div ref={scrollRef} />
           {hasMore && (
             <Box textAlign="center" mt={2}>
@@ -285,7 +395,14 @@ useEffect(() => {
           </Fab>
         )}
       </div>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </div>
+    
   );
 };
 

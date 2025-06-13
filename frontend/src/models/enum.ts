@@ -26,7 +26,7 @@ export const StairPreferenceOptions = [
 ];
 
 export const ColorOptions = [
-  { value: "#00F0FF", label: "Electric Blue" },
+  { value: "#00F0FF", label: "Blue" },
   { value: "#00FF81", label: "Green" },
   { value: "#FFA900", label: "Orange" },
   { value: "#FF6800", label: "Pumpkin" },
@@ -34,3 +34,23 @@ export const ColorOptions = [
 ] as const;
 
 export type ColorCode = typeof ColorOptions[number]['value'];
+
+
+export type RelationshipOption = {
+  value: string;
+  label: string;
+};
+
+export const RelationshipOptions: RelationshipOption[] = [
+  { value: 'son', label: 'Son' },
+  { value: 'daughter', label: 'Daughter' },
+  { value: 'father', label: 'Father' },
+  { value: 'mother', label: 'Mother' },
+  { value: 'brother', label: 'Brother' },
+  { value: 'sister', label: 'Sister' },
+  { value: 'spouse', label: 'Spouse' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'guardian', label: 'Guardian' },
+  { value: 'grandparent', label: 'Grandparent' },
+  { value: 'friend', label: 'Friend' },
+];
