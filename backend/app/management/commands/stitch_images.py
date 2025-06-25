@@ -77,8 +77,8 @@ def stitch_tiles_from_metadata(metadata_path: Path, output_dir: Path, tile_size:
 
     for floor, zoom_levels in metadata.items():
         for zoom_key, data in zoom_levels.items():
-            # Only process floor-1 and zoom key z3. Floor 0 is done. Floor 1 and Floor 2.
-            if floor != "floor-4" or zoom_key != "z3":
+            # Only process floor-1 and zoom key z7. Floor 0 is done. Floor 1 and Floor 2.
+            if floor != "floor-1" or zoom_key != "z7":
                 continue
 
             zoom = data["zoom"]
