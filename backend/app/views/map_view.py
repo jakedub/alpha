@@ -13,7 +13,7 @@ TILE_CACHE_ROOT = Path("/tmp/tile_cache")
 VALID_TILE_SET = set()
 
 TILE_FILE_PATH = Path(__file__).resolve().parents[2] / "static" / "tiles" / "tile_urls_valid.txt"
-print(f"🛠 TILE_FILE_PATH = {TILE_FILE_PATH}")
+
 if TILE_FILE_PATH.exists():
     with open(TILE_FILE_PATH, "r") as f:
         for line in f:

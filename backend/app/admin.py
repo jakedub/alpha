@@ -8,12 +8,25 @@ from .models.room import Room
 from .models.entrance import Entrance
 from .models.user_event import UserEvent
 from .models.related_user import RelatedUser
+from .models.vendor import Vendor
+from .models.user_vendor import UserVendor
+from .models.user_watched_event import UserWatchedEvent
+from .models.tag import Tag
 from django import forms
 
 admin.site.register(Event)
 admin.site.register(Route)
+admin.site.register(UserVendor)
+admin.site.register(UserWatchedEvent)
+admin.site.register(Tag)
 
-class RelatedUSerInLine(admin.TabularInline):
+class VendorAdmin(admin.ModelAdmin):
+    filter_horizontal = ('tags',)  # Adds a multi-select widget for tags
+    list_display = ['name', 'booth_number', 'tags']  # Optional: add fields to show in list view
+
+admin.site.register(Vendor, VendorAdmin)
+
+class RelatedUserInLine(admin.TabularInline):
     model = RelatedUser
     extra = 0
 
@@ -24,7 +37,7 @@ class UserEventInline(admin.TabularInline):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    inlines = [UserEventInline, RelatedUSerInLine]
+    inlines = [UserEventInline, RelatedUserInLine]
 
 class MapPickerMixin(forms.ModelForm):
     latitude_field_name = 'latitude'
@@ -80,6 +93,7 @@ class LocationForm(MapPickerMixin):
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     form = LocationForm
+    list_display = ['name', 'base_latitude', 'base_longitude']
 
 
 # Entrance
@@ -94,3 +108,26 @@ class EntranceForm(MapPickerMixin):
 @admin.register(Entrance)
 class EntranceAdmin(admin.ModelAdmin):
     form = EntranceForm
+
+class UserEventForRelatedUserInline(admin.TabularInline):
+    model = UserEvent.related_users.through  
+    extra = 0
+    fields = ['userevent', 'relateduser']  
+
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if self.parent_object and hasattr(self.parent_object, 'user'):
+            return qs.filter(relateduser=self.parent_object)
+        return qs.none()
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_object = obj
+        return super().get_formset(request, obj, **kwargs)
+
+@admin.register(RelatedUser)
+class RelatedUserAdmin(admin.ModelAdmin):
+    inlines = [UserEventForRelatedUserInline]
+    class Meta:
+        model = RelatedUser
+        fields = '__all__'

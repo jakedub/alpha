@@ -17,6 +17,8 @@ class UserEventSerializer(serializers.ModelSerializer):
     event_start_time = serializers.DateTimeField(source='event.start_time', read_only=True)
     event_end_time = serializers.DateTimeField(source='event.end_time', read_only=True)
     event_location = serializers.CharField(source='event.location.name', read_only=True)
+    event_latitude = serializers.FloatField(source='event.location.base_latitude', read_only=True)
+    event_longitude = serializers.FloatField(source='event.location.base_longitude', read_only=True)
 
     def get_classNames(self, obj):
         if obj.self_assigned and obj.related_users.exists():
@@ -38,5 +40,6 @@ class UserEventSerializer(serializers.ModelSerializer):
         fields = [
            'id', 'status', 'event',  # <- accepts input like "MHE25ND271394"
             'event_id', 'event_title', 'event_game_id',
-            'event_short_description', 'event_start_time', 'event_end_time', 'self_assigned', 'related_users', 'classNames', 'event_location'
+            'event_short_description', 'event_start_time', 'event_end_time', 'self_assigned', 'related_users', 
+            'classNames', 'event_location', 'event_latitude', 'event_longitude'
         ]

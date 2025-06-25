@@ -95,9 +95,18 @@ Add this to `.vscode/settings.json`:
 
 ---
 
-## 🗃 Notes
+## 🗃 Notes 
 
 - Ensure PostgreSQL is running, and the `alpha` database exists.
 - Use `createdb alpha` to create the DB if needed.
 
 
+## Vendor Work
+1. Pull the vendor list from: https://www.gencon.com/api/v1/exhibitors; using fetch_vendors.py
+fetch_vendors will writes to exhibitor.json
+2. Extract the vendor data from the API using vendor_extract.py
+This places the vendor data from exhibitor.json into the vendor table. It also de-duplicates the list into a vendor.txt and adds in the URL
+3. Alter the vendor.txt to a CSV and separate the URL into its own column. Insert into assets folder
+4. Add the tags to the vendors using scrape_vendor.py
+This will iterate over the vendors list (full_vendor_list.csv) in a batch of 10 and return tags that are associated in an array. This writes to the vendor_tagged_playwright.csv
+5. Will need to take the vendor_tagged_playwright.csv and iterate over to find and update vendors based on name with the tags, using assign_tags_to_vendors.py

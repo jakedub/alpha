@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from .views.tag_view import TagViewSet
+
 from .views.user_event_view import UserEventViewSet
 from .views.event_view import EventViewSet
 from .views.location_view import LocationViewSet
@@ -8,6 +10,10 @@ from .views.user_view import UserViewSet
 from .views.room_view import RoomViewSet
 from .views.entrance_view import EntranceViewSet
 from .views.related_user_view import RelatedUserViewSet
+from .views.user_vendor_view import UserVendorViewSet
+from .views.vendor_view import VendorViewSet
+from .views.user_watched_event_view import UserWatchedEventViewSet
+
 
 from .views.upload_view import upload_csv
 
@@ -19,6 +25,10 @@ router.register(r'rooms', RoomViewSet)
 router.register(r'entrance', EntranceViewSet)
 router.register(r'user_events', UserEventViewSet)
 router.register(r'related_users', RelatedUserViewSet)
+router.register(r'user_vendors', UserVendorViewSet)
+router.register(r'vendors', VendorViewSet)
+router.register(r'user_watched_events', UserWatchedEventViewSet)
+router.register(r'tags', TagViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
