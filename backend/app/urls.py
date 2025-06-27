@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from .views.vendor_visit_view import VendorVisitViewSet
+
 from .views.tag_view import TagViewSet
 
 from .views.user_event_view import UserEventViewSet
@@ -13,6 +15,7 @@ from .views.related_user_view import RelatedUserViewSet
 from .views.user_vendor_view import UserVendorViewSet
 from .views.vendor_view import VendorViewSet
 from .views.user_watched_event_view import UserWatchedEventViewSet
+from .views.calendar_event_view import CalendarEventViewSet
 
 
 from .views.upload_view import upload_csv
@@ -29,6 +32,8 @@ router.register(r'user_vendors', UserVendorViewSet)
 router.register(r'vendors', VendorViewSet)
 router.register(r'user_watched_events', UserWatchedEventViewSet)
 router.register(r'tags', TagViewSet)
+router.register(r'vendor_visits', VendorVisitViewSet)
+router.register(r'calendar_events', CalendarEventViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

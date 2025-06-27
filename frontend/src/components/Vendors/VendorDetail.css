@@ -1,0 +1,17 @@
+.vendor-map-image {
+  max-width: 300px;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vendor-map-image-fullwidth {
+  width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

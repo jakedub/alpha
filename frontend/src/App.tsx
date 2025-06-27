@@ -23,6 +23,8 @@ import GenConMap from './components/Map/GenConMap';
 import Calendar1 from './components/Shared/Calendar1';
 import Calendar2 from './components/Shared/Calendar2';
 import EventRouteMap from './components/Map/EventRouteMap';
+import VendorDetail from './components/Vendors/VendorDetail';
+import VendorList from './components/Vendors/VendorList';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -44,7 +46,9 @@ function App() {
           <Routes>
             <Route path="/fullcalendar" element={<Calendar1/>}/>
             <Route path="/fullcalendar2" element={<Calendar2/>}/>
-            <Route path="/event-route-map" element={<EventRouteMap eventLocations={[]} />} />
+            <Route path="/event-route-map" element={<EventRouteMap />} />
+            <Route path="/vendors/:gencon_id" element={<VendorDetail />} />
+            <Route path="/vendors" element={<VendorList />} />
             <Route path="/rooms" element={<RoomList />} />
             <Route path="/users" element={<UserList />} />
             <Route path="/" element={<Home />} />

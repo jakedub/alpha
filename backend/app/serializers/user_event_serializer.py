@@ -1,3 +1,5 @@
+# app/serializers/user_event_serializer.py
+
 from rest_framework import serializers
 from app.models.user_event import UserEvent
 from app.models.event import Event
@@ -19,6 +21,7 @@ class UserEventSerializer(serializers.ModelSerializer):
     event_location = serializers.CharField(source='event.location.name', read_only=True)
     event_latitude = serializers.FloatField(source='event.location.base_latitude', read_only=True)
     event_longitude = serializers.FloatField(source='event.location.base_longitude', read_only=True)
+    
 
     def get_classNames(self, obj):
         if obj.self_assigned and obj.related_users.exists():

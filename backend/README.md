@@ -110,3 +110,9 @@ This places the vendor data from exhibitor.json into the vendor table. It also d
 4. Add the tags to the vendors using scrape_vendor.py
 This will iterate over the vendors list (full_vendor_list.csv) in a batch of 10 and return tags that are associated in an array. This writes to the vendor_tagged_playwright.csv
 5. Will need to take the vendor_tagged_playwright.csv and iterate over to find and update vendors based on name with the tags, using assign_tags_to_vendors.py
+
+
+## Aliases for Python
+1. djmm = python manage.py makemigrations
+2. djm = python manage.py migrate
+3. djr = python manage.py runserver

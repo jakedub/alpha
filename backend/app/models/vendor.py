@@ -15,7 +15,7 @@ class Vendor(models.Model):
     
     description = models.TextField(blank=True, null=True)  # Optional additional info
     tags = models.ManyToManyField(Tag, blank=True, related_name='vendors')
-    
+
     class Meta:
         ordering = ['name']
 

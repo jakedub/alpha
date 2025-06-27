@@ -22,6 +22,7 @@ import StadiumRoundedIcon from '@mui/icons-material/StadiumRounded';
 import LoginIcon from '@mui/icons-material/Login';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LogoutIcon from '@mui/icons-material/Logout';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { blue, green, pink, purple } from '@mui/material/colors';
 import RoomSharpIcon from '@mui/icons-material/RoomSharp';
 import { useAuth } from '../../auth/AuthContext';
@@ -104,6 +105,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
     user && { text: 'Scheduler', path: '/scheduler', icon: <HomeIcon sx={{ color: blue[500] }} /> },
     { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon /> },
     { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
+    { text: 'Vendors', path: '/vendors', icon: <GroupIcon sx={{ color: pink[500] }} /> },
+    { text: 'Vendor Detail', path: '/vendors/:gencon_id', icon: <OpenInNewIcon /> },
     // { text: 'Map', path:'/map', icon: <RoomSharpIcon sx={{ color: purple[500] }} />},
     // { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }} /> },
     user && { text: 'Logout', action: handleLogout, icon: <LogoutIcon /> },
