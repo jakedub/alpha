@@ -15,11 +15,12 @@ class EventViewSet(viewsets.ModelViewSet):
     search_fields = [
         'event_type',
         'gaming_group',
-        'location_name',
+        'location__name',
         'minimum_age',
         'experience_required',
         'game_system',
-        'day'
+        'title',
+        'game_id'
     ]
     ordering_fields = ['start_time', 'title']
     lookup_field = "game_id"

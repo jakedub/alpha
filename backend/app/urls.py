@@ -16,6 +16,7 @@ from .views.user_vendor_view import UserVendorViewSet
 from .views.vendor_view import VendorViewSet
 from .views.user_watched_event_view import UserWatchedEventViewSet
 from .views.calendar_event_view import CalendarEventViewSet
+from .views.gencon_event_search_view import gencon_event_search
 
 
 from .views.upload_view import upload_csv
@@ -30,12 +31,13 @@ router.register(r'user_events', UserEventViewSet)
 router.register(r'related_users', RelatedUserViewSet)
 router.register(r'user_vendors', UserVendorViewSet)
 router.register(r'vendors', VendorViewSet)
-router.register(r'user_watched_events', UserWatchedEventViewSet)
+router.register(r'user-watched-events', UserWatchedEventViewSet)
 router.register(r'tags', TagViewSet)
 router.register(r'vendor_visits', VendorVisitViewSet)
 router.register(r'calendar_events', CalendarEventViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('upload/', upload_csv, name='upload_csv')
+    path('upload/', upload_csv, name='upload_csv'),
+    path('gencon-event-search/', gencon_event_search, name='gencon_event_search')
 ]

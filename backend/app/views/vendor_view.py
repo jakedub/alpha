@@ -8,3 +8,4 @@ class VendorViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]  # public read access
     lookup_field = 'gencon_id'  # Use gencon_id as the lookup field
     lookup_value_regex = '[0-9]+'  # Ensure gencon_id is numeric
+

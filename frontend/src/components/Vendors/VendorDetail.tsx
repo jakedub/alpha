@@ -6,6 +6,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Link } from 'react-router-dom';
 import './VendorDetail.css';
+import VendorVisitButton from '../VendorVisit/VendorVisitButton';
 
 function formatTagName(tagName: string) {
   return tagName
@@ -47,10 +48,14 @@ const VendorDetail = () => {
       <h2>{vendor.name}</h2>
       <h3>Vendor Details</h3>
       <p>GenCon ID: {vendor.gencon_id}</p>
+      <p>General ID: {vendor.id}</p>
       <p>Booth Number(s): {vendor.booth_number || 'N/A'}</p>
       <p>Website: {vendor.websiteUrl ? <a href={vendor.websiteUrl} target="_blank" rel="noopener noreferrer">{vendor.websiteUrl}</a> : 'N/A'}</p>
       <p>Description: {vendor.description || 'No description available.'}</p>
       <p>Tags: {vendor.tags?.map(tag => formatTagName(tag.name)).join(', ') || 'None'}</p>
+      <VendorVisitButton vendor={vendor}/>
+      {/* TODO: Replace 'event={yourEventObject}' with the actual CalendarEvent object */}
+      
       {vendor.mapUrl && (
         <div>
           <img src={vendor.mapUrl} alt={`${vendor.name} map location`} className="vendor-map-image" />

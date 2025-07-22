@@ -116,3 +116,19 @@ This will iterate over the vendors list (full_vendor_list.csv) in a batch of 10 
 1. djmm = python manage.py makemigrations
 2. djm = python manage.py migrate
 3. djr = python manage.py runserver
+
+## API Urls
+1. Event search: https://www.gencon.com/api/event_search?search=BGM25ND272869; https://www.gencon.com/api/event_search?search=Lightning%20Train%20-%20Gen%20Con%20Premiere!
+2. Exhibitors: https://www.gencon.com/api/v1/exhibitors
+
+
+Friday, 10 am: 
+BGM25ND285074
+
+Thursday, 2 pm:
+BGM25ND285070
+BGM25ND285069
+
+BGM25ND285071
+
+BGM25ND285072

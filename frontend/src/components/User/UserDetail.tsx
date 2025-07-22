@@ -23,6 +23,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  CardContent,
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { Calendar } from './Calendar';
@@ -34,6 +35,8 @@ import { RelatedUser } from '../../models/related_user';
 import { ColorCode, ColorOptions, RelationshipOptions } from '../../models/enum';
 import { CalendarEvent } from '../../models/calendar';
 import { UserWatchedEvent } from '../../models/user_watched_event';
+import VendorVisitList from '../VendorVisit/VendorVisitList';
+import WatchedEventList from './WatchedEventList';
 // Define UserWatchedEvent type inline if not available in models
 
 const UserDetail = () => {
@@ -119,24 +122,6 @@ const UserDetail = () => {
     } catch {
       setMessage('Error updating preferences.');
     }
-  };
-
-  const [watchList, setWatchList] = useState<UserWatchedEvent[]>([]);
-  const [newId, setNewId] = useState('');
-
-  const addWatchedEvent = () => {
-    // Retrieve token from localStorage or context
-    const token = localStorage.getItem('token');
-    fetch('/api/user-watched-events/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ gencon_event_id: newId })
-    })
-      .then(res => res.json())
-      .then(event => {
-        setWatchList(prev => [...prev, event]);
-        setNewId('');
-      });
   };
 
 
@@ -351,22 +336,18 @@ const UserDetail = () => {
               </Button>
             </Box>
           )}
-          <Box>
-            <TextField label="Gen Con Event ID" value={newId} onChange={(e) => setNewId(e.target.value)} />
-            <Button onClick={addWatchedEvent}>Watch</Button>
-          </Box>
-          <List>
-            {watchList.map(ev => (
-              <ListItem key={ev.id}>
-                <ListItemText
-                  primary={ev.gencon_event_id}
-                  secondary={ev.last_known_status ? '✅ Available' : '❌ Unavailable'}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Grid>
+          {/* Watch Events */}
+          <Card>
+            <CardContent>
+              <WatchedEventList />
+            </CardContent>
+          </Card>
 
+        </Grid>
+        {/* Vendor Visits */}
+        <Grid item xs={12}>
+          <VendorVisitList />
+        </Grid>
         {/* Calendar */}
         <Grid item xs={12}>
           <Box sx={{ width: '100%' }}>

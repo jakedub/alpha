@@ -48,8 +48,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'corsheaders',
-    'django_filters'
+    'django_filters',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {

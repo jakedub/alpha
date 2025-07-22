@@ -8,4 +8,6 @@ class EntranceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entrance
-        fields = ['name', 'location', 'en_latitude', 'en_longitude']
+        fields = ['name', 'location', 'en_latitude', 'en_longitude', 'rooms']
+
+        

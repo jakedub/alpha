@@ -19,14 +19,40 @@ from django.shortcuts import render, redirect
 from django.urls import path
 from django.contrib import messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
+from django.http import HttpResponse
+import csv
 
-admin.site.register(Event)
 admin.site.register(Route)
 admin.site.register(UserVendor)
-admin.site.register(UserWatchedEvent)
 admin.site.register(Tag)
 admin.site.register(VendorVisit)
 admin.site.register(CalendarEvent)
+
+class ExportAsCSVActionMixin:
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        # Handle M2M separately (like tags)
+        m2m_field_names = [field.name for field in meta.many_to_many]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{meta.verbose_name_plural}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(field_names + m2m_field_names)  # include M2M fields in header
+
+        for obj in queryset:
+            row = [getattr(obj, field) for field in field_names]
+            # Add M2M field values (e.g., tag names)
+            for field in m2m_field_names:
+                related_objects = getattr(obj, field).all()
+                value = ", ".join(str(item) for item in related_objects)
+                row.append(value)
+            writer.writerow(row)
+
+        return response
+
+    export_as_csv.short_description = "Export Selected"
 
 class VendorVisitAdmin(admin.ModelAdmin):
     list_display = ['user', 'vendor', 'note_type']
@@ -53,14 +79,15 @@ class HasTagsFilter(admin.SimpleListFilter):
             return queryset.filter(tags__isnull=True).distinct()
         return queryset
 
-class VendorAdmin(admin.ModelAdmin):
+class VendorAdmin(ExportAsCSVActionMixin, admin.ModelAdmin):
     filter_horizontal = ('tags',)
     list_display = ['name', 'booth_number', 'display_tags']
     list_filter = [HasTagsFilter]  # 👈 Add this line
-    actions = ['assign_tag_to_selected']
+    actions = ['export_as_csv', 'assign_tag_to_selected']
 
     def display_tags(self, obj):
         return ", ".join(tag.name for tag in obj.tags.all())
+    
     display_tags.short_description = 'Tags'
 
     def assign_tag_to_selected(self, request, queryset):
@@ -209,3 +236,16 @@ class RelatedUserAdmin(admin.ModelAdmin):
     class Meta:
         model = RelatedUser
         fields = '__all__'
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ['title', 'start_time', 'end_time', 'location', 'game_id']
+    search_fields = ['title', 'short_description', 'long_description', 'game_id']
+    list_filter = ['location', 'game_system', 'event_type']
+    date_hierarchy = 'start_time'
+    ordering = ['start_time']
+
+@admin.register(UserWatchedEvent)
+class UserWatchedEventAdmin(admin.ModelAdmin):
+    list_display = ['user', 'event']
+    search_fields = ['event__title']
+    autocomplete_fields = ['event']

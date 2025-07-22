@@ -1,0 +1,19 @@
+.vendor-visit-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.vendor-visit-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 250px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.vendor-visit-card.active {
+  background-color: #f0f8ff;
+}

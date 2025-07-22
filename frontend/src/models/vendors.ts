@@ -5,6 +5,7 @@ export interface Tag {
 }
 
 export interface Vendor {
+  id: number;           // primary key in Django
   gencon_id: string;      // gencon_id in Django
   name: string;
   booth_number?: string;  // optional, comma-separated booth numbers

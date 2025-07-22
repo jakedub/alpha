@@ -10,7 +10,7 @@ from .room_serializer import RoomSerializer
 class EventSerializer(serializers.ModelSerializer):
     location = LocationSerializer()
     room = RoomSerializer()
-    user_status = UserEventSerializer(source='user_events', many=True)
+    user_status = UserEventSerializer(source='user_event_links', many=True)
 
     class Meta:
         model = Event
