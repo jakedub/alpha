@@ -11,3 +11,6 @@ class Room(models.Model):
 
     def __str__(self):
         return f"{self.location.name} - {self.room_name}"
+    
+    class Meta:
+        unique_together = ('location', 'room_name')  # Ensure no duplicate room names in the same location

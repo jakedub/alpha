@@ -8,5 +8,6 @@ class VendorSerializer(serializers.ModelSerializer):
         model = Vendor
         fields = [
             'id', 'gencon_id', 'name', 'booth_number',
-            'website_url', 'map_url', 'map_x', 'map_y', 'description', 'tags'
+            'website_url', 'map_url', 'map_x', 'map_y', 'description', 'tags',
+            'is_guest_exhibitor'
         ]

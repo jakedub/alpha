@@ -1,4 +1,5 @@
 # admin.py
+from datetime import timedelta, timezone
 from django.contrib import admin
 from .models.event import Event
 from .models.location import Location
@@ -28,6 +29,21 @@ admin.site.register(Tag)
 admin.site.register(VendorVisit)
 admin.site.register(CalendarEvent)
 
+class ExportFieldSelectionForm(forms.Form):
+    _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+    fields = forms.MultipleChoiceField(
+        label="Fields to include in CSV",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        model = kwargs.pop("model")
+        super().__init__(*args, **kwargs)
+        self.fields["fields"].choices = [
+            (f.name, f.verbose_name) for f in model._meta.fields
+        ] + [
+            (f.name, f.verbose_name) for f in model._meta.many_to_many
+        ]
 class ExportAsCSVActionMixin:
     def export_as_csv(self, request, queryset):
         meta = self.model._meta
@@ -81,9 +97,10 @@ class HasTagsFilter(admin.SimpleListFilter):
 
 class VendorAdmin(ExportAsCSVActionMixin, admin.ModelAdmin):
     filter_horizontal = ('tags',)
-    list_display = ['name', 'booth_number', 'display_tags']
-    list_filter = [HasTagsFilter]  # 👈 Add this line
-    actions = ['export_as_csv', 'assign_tag_to_selected']
+    list_display = ['name', 'booth_number', 'display_tags', 'id', 'gencon_id', 'is_guest_exhibitor']
+    list_filter = [HasTagsFilter, 'is_guest_exhibitor']  # 👈 Add this line
+    actions = ['export_as_csv', 'assign_tag_to_selected', 'merge_selected_vendors']
+    search_fields = ['name']
 
     def display_tags(self, obj):
         return ", ".join(tag.name for tag in obj.tags.all())
@@ -114,6 +131,31 @@ class VendorAdmin(ExportAsCSVActionMixin, admin.ModelAdmin):
             'title': 'Assign Tag to Selected Vendors',
         })
 
+    def merge_selected_vendors(self, request, queryset):
+        if queryset.count() < 2:
+            self.message_user(request, "Please select at least two vendors to merge.", level=messages.WARNING)
+            return
+
+        primary = queryset.order_by('id').first()
+        duplicates = queryset.exclude(id=primary.id)
+
+        booth_set = set()
+        if primary.booth_number:
+            booth_set.update([b.strip() for b in primary.booth_number.split(',') if b.strip()])
+
+        for vendor in duplicates:
+            if vendor.booth_number:
+                booth_set.update([b.strip() for b in vendor.booth_number.split(',') if b.strip()])
+            for tag in vendor.tags.all():
+                primary.tags.add(tag)
+            vendor.delete()
+
+        primary.booth_number = ', '.join(sorted(booth_set, key=str))
+        primary.save()
+
+        self.message_user(request, f"Merged {duplicates.count()} vendors into '{primary.name}'.")
+    merge_selected_vendors.short_description = "Merge selected vendors"
+
 admin.site.register(Vendor, VendorAdmin)
 
 class CalendarEventInlineForm(forms.ModelForm):
@@ -121,6 +163,15 @@ class CalendarEventInlineForm(forms.ModelForm):
         model = CalendarEvent
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Only set default if creating a new instance
+        if not self.instance.pk:
+            start = timezone.now()
+            self.fields['start_time'].initial = start
+            self.fields['end_time'].initial = start + timedelta(hours=1)
+            
 class CalendarEventInline(admin.StackedInline):
     model = CalendarEvent
     form = CalendarEventInlineForm

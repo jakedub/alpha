@@ -9,6 +9,7 @@ import { CalendarEvent } from '../../models/calendar';
 import { Event } from '../../models/events'; 
 import { Calendar } from '../User/Calendar';
 import { momentLocalizer } from 'react-big-calendar';
+import { openConsoleWindow } from '../../utils/devConsole';
 
 const Scheduler = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -41,6 +42,7 @@ const Scheduler = () => {
       setCalendarEvents(transformed);
     }
   }, [user]);
+
 
   const handleAddToCalendar = async (eventId: number) => {
     try {

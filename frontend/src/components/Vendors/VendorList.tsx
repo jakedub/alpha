@@ -62,109 +62,105 @@ const VendorList = () => {
   return (
     <>
       <div ref={topRef} />
-      <div className="filter-section">
-        <Box
-          sx={{
-            position: 'fixed',
-            height: '150px',
-            backgroundColor: theme.palette.background.paper,
-            zIndex: theme.zIndex.appBar + 1,
-            padding: 2,
-            boxSizing: 'border-box',
-            maxWidth: 1200,
-            margin: '0 auto',
-            width: '100%',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <VendorFilter
-            vendors={vendors}
-            selectedTags={filters}
-            onTagChange={setFilters}
-            selectedVendors={selectedVendors}
-            setSelectedVendors={setSelectedVendors}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            tags={vendors.flatMap(v => v.tags ?? []).map(tag => tag.name)}
-          />
-        </Box>
-      </div>
-      <div className="filtered-results">
-        <Box
-          sx={{
-            position: 'relative',
-            marginTop: '100px',
-            height: 'calc(100vh - 100px)',
-            overflowY: 'auto',
-            width: '100%',
-            maxWidth: 1200,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            paddingTop: '20px',
-            padding: 2,
-            scrollbarWidth: 'none', // Firefox
-            '&::-webkit-scrollbar': {
-              display: 'none', // WebKit
-            },
-          }}
-        >
-          {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}
-
-          <Box sx={{ marginTop: 2 }}>
-            <Typography variant="body2">Total Vendors: {filteredVendors.length}</Typography>
+      <Box sx={{ padding: 2, backgroundColor: theme.palette.background.default }}>
+        <Typography variant="h4" gutterBottom>
+          Vendors
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          Browse through the list of vendors available at the event. Total Vendors: {filteredVendors.length}
+        </Typography>
+        <Box display="flex" flexDirection="row" maxWidth={1200} margin="0 auto" width="100%">
+          <Box flexGrow={1}>
+            <div className="filtered-results">
+              <Box
+                sx={{
+                  position: 'relative',
+                  height: 'calc(100vh - 100px)',
+                  overflowY: 'auto',
+                  width: '100%',
+                  paddingTop: '20px',
+                  padding: 2,
+                  scrollbarWidth: 'none',
+                  '&::-webkit-scrollbar': { display: 'none' },
+                }}
+              >
+                {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}
+                <Box sx={{ marginTop: 2 }}>
+                  <Grid container spacing={2} justifyContent="center" maxWidth="lg">
+                    {filteredVendors.map((vendor) => (
+                      <Grid item xs={12} sm={6} md={4} lg={4} key={vendor.gencon_id}>
+                        <Card sx={{ padding: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body1">{vendor.name}</Typography>
+                          <IconButton
+                            component={Link}
+                            to={`/vendors/${vendor.gencon_id}`}
+                            aria-label="View vendor details"
+                            sx={{
+                              backgroundColor: theme.palette.background.paper,
+                              borderRadius: '50%',
+                              color: theme.palette.text.disabled,
+                              padding: '8px',
+                              '&:hover': { backgroundColor: '#c0c0c0' },
+                            }}
+                          >
+                            <OpenInNewIcon />
+                          </IconButton>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              </Box>
+            </div>
           </Box>
-
-          <Box sx={{ marginTop: 2 }}>
-            <Grid container spacing={2} justifyContent="center" maxWidth="lg">
-              {filteredVendors.map((vendor) => (
-                <Grid item xs={12} sm={6} md={4} lg={4} key={vendor.gencon_id}>
-                  <Card sx={{ padding: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="body1">{vendor.name}</Typography>
-                    <IconButton
-                      component={Link}
-                      to={`/vendors/${vendor.gencon_id}`}
-                      aria-label="View vendor details"
-                      sx={{
-                        backgroundColor: theme.palette.background.paper,
-                        borderRadius: '50%',
-                        color: theme.palette.text.disabled,
-                        padding: '8px',
-                        '&:hover': { backgroundColor: '#c0c0c0' },
-                      }}
-                    >
-                      <OpenInNewIcon />
-                    </IconButton>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 10,
+              height: '50vh',
+              backgroundColor: theme.palette.background.paper,
+              zIndex: theme.zIndex.appBar + 1,
+              padding: 2,
+              boxSizing: 'border-box',
+              marginTop: '75px',
+              borderLeft: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <VendorFilter
+              vendors={vendors}
+              selectedTags={filters}
+              onTagChange={setFilters}
+              selectedVendors={selectedVendors}
+              setSelectedVendors={setSelectedVendors}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              tags={vendors.flatMap(v => v.tags ?? []).map(tag => tag.name)}
+            />
           </Box>
         </Box>
-      </div>
 
-      {/* Scroll buttons */}
-      {nearTop ? (
-        <Fab
-          color="primary"
-          aria-label="scroll down"
-          onClick={() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1200 }}
-        >
-          <ArrowDownwardIcon />
-        </Fab>
-      ) : (
-        <Fab
-          color="secondary"
-          aria-label="scroll up"
-          onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          sx={{ position: 'fixed', bottom: 80, right: 16, zIndex: 1200 }}
-        >
-          <ArrowUpwardIcon />
-        </Fab>
-      )}
-      <div ref={scrollRef} />
+        {/* Scroll buttons */}
+        {nearTop ? (
+          <Fab
+            color="primary"
+            aria-label="scroll down"
+            onClick={() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1200 }}
+          >
+            <ArrowDownwardIcon />
+          </Fab>
+        ) : (
+          <Fab
+            color="secondary"
+            aria-label="scroll up"
+            onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            sx={{ position: 'fixed', bottom: 80, right: 16, zIndex: 1200 }}
+          >
+            <ArrowUpwardIcon />
+          </Fab>
+        )}
+        <div ref={scrollRef} />
+      </Box>
     </>
   );
 };

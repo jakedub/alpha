@@ -25,6 +25,7 @@ import Calendar2 from './components/Shared/Calendar2';
 import EventRouteMap from './components/Map/EventRouteMap';
 import VendorDetail from './components/Vendors/VendorDetail';
 import VendorList from './components/Vendors/VendorList';
+import DevConsoleButton from './components/Shared/DevConsoleButton';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -43,6 +44,7 @@ function App() {
           >
             <LightbulbOutlined />
           </Fab>
+          <DevConsoleButton />
           <Routes>
             <Route path="/fullcalendar" element={<Calendar1/>}/>
             <Route path="/fullcalendar2" element={<Calendar2/>}/>

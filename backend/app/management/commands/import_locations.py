@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 # If there are multiple rooms in the same location, create travel connections between them
                 for other_room in location_info['rooms']:
                     if room_data != other_room:  # Skip self-connection
-                        other_room_instance = Room.objects.get(
+                        other_room_instance = Room.objects.get_or_create(
                             location=location_instance,
                             room_name=other_room['room_name']
                         )

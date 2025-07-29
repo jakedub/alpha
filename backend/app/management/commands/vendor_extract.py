@@ -16,9 +16,17 @@ class Command(BaseCommand):
 
         inserted_vendor_names = []
 
+        created_count = 0
+        updated_count = 0
+
         for vendor in vendors_data:
             source = vendor.get('_source', {})
-            gencon_id = source.get('id')
+            is_guest = source.get('is_guest_exhibitor', False)
+            # Determine gencon_id as a string
+            if is_guest:
+                gencon_id = f"guest_{vendor.get('_id')}"
+            else:
+                gencon_id = str(source.get('id')) if source.get('id') is not None else None
             if not gencon_id:
                 continue
 
@@ -48,25 +56,31 @@ class Command(BaseCommand):
                 map_x, map_y = None, None
 
             vendor_obj, created = Vendor.objects.update_or_create(
-                name=name,
+                gencon_id=gencon_id,
                 defaults={
-                    'gencon_id': gencon_id,
+                    'name': name,
                     'description': description,
                     'website_url': website_url,
                     'map_url': map_url,
                     'map_x': map_x,
-                    'map_y': map_y
+                    'map_y': map_y,
+                    'is_guest_exhibitor': is_guest,
                 }
             )
 
+            if created:
+                created_count += 1
+            else:
+                updated_count += 1
+
             # Handle booth_number appending logic
             existing_booths = vendor_obj.booth_number.split(',') if vendor_obj.booth_number else []
-            existing_booths = [b.strip() for b in existing_booths if b.strip()]
+            existing_booths = [str(b).strip() for b in existing_booths if str(b).strip()]
             if booth_number and booth_number not in existing_booths:
                 existing_booths.append(booth_number)
                 # Remove duplicates and join
                 unique_booths = sorted(set(existing_booths), key=existing_booths.index)
-                vendor_obj.booth_number = ', '.join(unique_booths)
+                vendor_obj.booth_number = ', '.join(str(b) for b in unique_booths)
                 vendor_obj.save()
 
             if name not in [n for n, _ in inserted_vendor_names]:
@@ -76,3 +90,5 @@ class Command(BaseCommand):
         with open(vendor_txt_path, 'w') as vendor_file:
             for name, website in inserted_vendor_names:
                 vendor_file.write(f"{name} - {website}\n")
+
+        self.stdout.write(f"Vendors created: {created_count}, updated: {updated_count}")

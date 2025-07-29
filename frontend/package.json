@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/interaction": "^6.1.17",
@@ -19,7 +19,7 @@
     "@fullcalendar/react": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.17",
     "@mui/icons-material": "^5.17.1",
-    "@mui/material": "^5.17.1",
+    "@mui/material": "^5.18.0",
     "@react-google-maps/api": "^2.20.6",
     "@tanstack/react-table": "^8.21.3",
     "@types/react-big-calendar": "^1.16.1",

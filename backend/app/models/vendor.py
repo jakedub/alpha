@@ -8,6 +8,7 @@ class Vendor(models.Model):
     booth_number = models.CharField(max_length=255, blank=True, null=True)  # Comma-separated booth numbers
     website_url = models.URLField(blank=True, null=True)
     map_url = models.URLField(blank=True, null=True)  # Link to Gen Con map location if any
+    is_guest_exhibitor = models.BooleanField(default=False)  # True if this is a guest exhibitor
     
     # Coordinates for placing vendor on the map
     map_x = models.FloatField(blank=True, null=True)

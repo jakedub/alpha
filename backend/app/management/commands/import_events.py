@@ -43,10 +43,15 @@ class Command(BaseCommand):
     help = 'Import events from a CSV file and link to locations and rooms'
 
     def add_arguments(self, parser):
-        parser.add_argument('csv_file', type=str, help='Path to the CSV file')
+        parser.add_argument(
+            'csv_file',
+            nargs='?',
+            default='app/assets/events.csv',
+            help='Path to the GenCon CSV file'
+        )
 
     def handle(self, *args, **kwargs):
-        file_path ='app/assets/events.csv'
+        file_path = kwargs['csv_file']
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 # Normalize header keys to remove BOM from the first key
@@ -63,11 +68,14 @@ class Command(BaseCommand):
                     room_name = row['Room Name'].strip()
                     floor_level = parse_floor_level(room_name)
                     room_type = determine_room_type(room_name)
-                    room, _ = Room.objects.get_or_create(
-                        location=location,
-                        room_name=room_name,
-                        defaults={'floor_level': floor_level, 'room_type': room_type}
-                    )
+                    try:
+                        room, _ = Room.objects.get_or_create(location=location, room_name=room_name)
+                    except Room.MultipleObjectsReturned:
+                        self.stdout.write(self.style.ERROR(f"Multiple Room entries for location='{location}' and room_name='{room_name}'. Skipping row #{reader.line_num}."))
+                        continue
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Unexpected error retrieving Room for location='{location}' and room_name='{room_name}': {e}. Skipping row #{reader.line_num}."))
+                        continue
 
                     event_data = {
                         'gaming_group': row['Group'],
@@ -83,9 +91,9 @@ class Command(BaseCommand):
                         'experience_required': row['Experience Required'].split()[0],
                         'materials_required': row['Materials Required'].strip().lower() == 'yes',
                         'materials_required_details': row['Materials Required Details'],
-                        'start_time': make_aware(datetime.strptime(row['Start Date & Time'], '%m/%d/%y %H:%M')),
+                        'start_time': make_aware(datetime.strptime(row['Start Date & Time'], '%m/%d/%Y %I:%M %p')),
                         'duration_hours': float(row['Duration']) if row['Duration'] else None,
-                        'end_time': make_aware(datetime.strptime(row['End Date & Time'], '%m/%d/%y %H:%M')),
+                        'end_time': make_aware(datetime.strptime(row['End Date & Time'], '%m/%d/%Y %I:%M %p')),
                         'gm_names': row['GM Names'],
                         'website': row['Website'] or '',
                         'email': row['Email'] or '',
@@ -99,7 +107,7 @@ class Command(BaseCommand):
                         'table_number': row['Table Number'],
                         'special_category': row['Special Category'],
                         'tickets_available': int(row['Tickets Available']) if row['Tickets Available'] else None,
-                        'last_modified': datetime.strptime(row['Last Modified'], '%m/%d/%y').date(),
+                        'last_modified': make_aware(datetime.strptime(row['Last Modified'], '%Y-%m-%d %H:%M:%S')).date(),
                     }
 
                     _, created = Event.objects.update_or_create(game_id=row['Game ID'], defaults=event_data)
