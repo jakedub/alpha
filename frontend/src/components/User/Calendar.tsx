@@ -18,6 +18,7 @@ interface CalendarEvent {
   end: Date;
   category?: string;
   color?: string;
+  note?: string; // <-- Add this line
 }
 
 interface Props {
@@ -62,7 +63,10 @@ export const Calendar = ({ userEvents }: Props) => {
               <span>
                 <strong>{event.title}</strong>
                 <br />
-                <em>{event.description || 'No description.'}</em>
+                {(() => {
+                  const desc = event.note ?? event.description ?? 'No description.';
+                  return <em>{desc}</em>;
+                })()}
               </span>
             ),
           },

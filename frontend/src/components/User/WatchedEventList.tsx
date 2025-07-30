@@ -3,6 +3,7 @@ import { TextField, Button, List, ListItem, ListItemText, Typography, Autocomple
 import { UserWatchedEvent } from '../../models/user_watched_event';
 import api from '../../api/api';
 
+
 type Event = {
   id: number;
   title: string;
@@ -17,6 +18,7 @@ const WatchedEventList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [debounceTimeout, setDebounceTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
 const fetchWatchedEvents = async () => {
   try {
@@ -29,8 +31,9 @@ const fetchWatchedEvents = async () => {
 
   const searchEvents = async (query: string) => {
     try {
-      const res = await api.get(`/events/?search=${query}`);
+      const res = await api.get(`/event-search/?q=${query}`);
       setSearchResults(res.data);
+      console.log("Search results:", res.data);
     } catch (err) {
       console.error("Failed to search events", err);
     }
@@ -76,6 +79,24 @@ const fetchWatchedEvents = async () => {
     fetchWatchedEvents();
   }, []);
 
+  async function onDelete(game_id: string | undefined): Promise<void> {
+    if (!game_id) return;
+    try {
+      // Find the watched event to delete by matching game_id
+      const watchedEvent = watchList.find(ev => ev.event?.game_id === game_id);
+      if (!watchedEvent) return;
+      await api.delete(`/user-watched-events/${watchedEvent.id}/`);
+      setWatchList(prev => prev.filter(ev => ev.id !== watchedEvent.id));
+      setSnackbarMessage("Event removed from watchlist.");
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error("Failed to remove watched event", err);
+      setSnackbarMessage("Failed to remove event.");
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  }
   return (
     <>
       <Snackbar
@@ -89,17 +110,12 @@ const fetchWatchedEvents = async () => {
         </Alert>
       </Snackbar>
 
-      <Typography variant="h6">Watched Events</Typography>
       <Autocomplete
         options={searchResults}
         getOptionLabel={(option) => `${option.title} (${option.game_id})`}
         filterOptions={(x) => x} // Disable client-side filtering
         onInputChange={(_, newInputValue) => {
-          if (newInputValue.length >= 10) {
-            setSearchResults(newInputValue ? [] : searchResults);
-            return;
-          }
-          searchEvents(newInputValue);
+          setSearchQuery(newInputValue);
         }}
         onChange={(_, newValue) => setSelectedEvent(newValue)}
         renderInput={(params) => (
@@ -108,6 +124,14 @@ const fetchWatchedEvents = async () => {
             label="Search Events"
             fullWidth
             sx={{ mb: 1 }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault(); // prevent form submission or Autocomplete default
+                if (searchQuery.length >= 3) {
+                  searchEvents(searchQuery);
+                }
+              }
+            }}
           />
         )}
       />
@@ -120,19 +144,33 @@ const fetchWatchedEvents = async () => {
       </Button>
       <List>
         {watchList.map((ev) => (
-          <ListItem key={ev.id} secondaryAction={
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                if (ev.event?.game_id) {
-                  checkAvailability(ev.event.game_id);
-                }
-              }}
-            >
-              Check
-            </Button>
-          }>
+          <ListItem
+            key={ev.id}
+            secondaryAction={
+              <>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    if (ev.event?.game_id) {
+                      checkAvailability(ev.event.game_id);
+                    }
+                  }}
+                  sx={{ mr: 1 }}
+                >
+                  Check
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => onDelete(ev.event?.game_id)}
+                  color="error"
+                >
+                  Remove
+                </Button>
+              </>
+            }
+          >
             <ListItemText
               primary={ev.event?.title ?? `Event ID: ${ev.event?.game_id}`}
               secondary={ev.last_known_status ? '✅ Available' : '❌ Unavailable'}
