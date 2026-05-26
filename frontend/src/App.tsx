@@ -1,22 +1,19 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box, Fab } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import RoomList from './components/Rooms/RoomList';
 import EventList from './components/Events/EventList';
-import ThemeToggle from './components/Shared/ThemeToggle';
 import Layout from './components/Shared/Layout';
 import UserDetail from './components/User/UserDetail';
 import UserList from './components/User/UserList';
 import './App.css';
 import { getTheme } from './theme/theme';
 import Home from './components/Shared/Home';
-import Scheduler from './components/Shared/Scheduler'
+import Scheduler from './components/Shared/Scheduler';
 import EventDetail from './components/Events/EventDetail';
 import LocationList from './components/Locations/LocationList';
 import LocationDetail from './components/Locations/LocationDetail';
-import { Calendar } from './components/User/Calendar'; 
-import { LightbulbOutlined } from '@mui/icons-material';
+import { Calendar } from './components/User/Calendar';
 import Login from './components/User/Login';
 import ProtectedRoute from './auth/ProtectedRoute';
 import GenConMap from './components/Map/GenConMap';
@@ -26,24 +23,16 @@ import EventRouteMap from './components/Map/EventRouteMap';
 import VendorDetail from './components/Vendors/VendorDetail';
 import VendorList from './components/Vendors/VendorList';
 import DevConsoleButton from './components/Shared/DevConsoleButton';
+import DataSyncPage from './components/Shared/DataSyncPage';
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
-
+  const [darkMode, setDarkMode] = useState(true);
 
   return (
     <ThemeProvider theme={getTheme(darkMode)}>
       <CssBaseline />
       <Router>
-        <Layout>
-          <Fab
-            sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1300 }}
-            onClick={() => setDarkMode(!darkMode)}
-            color="inherit"
-            aria-label="Toggle dark mode"
-          >
-            <LightbulbOutlined />
-          </Fab>
+        <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
           <DevConsoleButton />
           <Routes>
             <Route path="/fullcalendar" element={<Calendar1/>}/>
@@ -67,6 +56,7 @@ function App() {
               } />
             <Route path="/login" element={<Login />} />
             <Route path="/map" element={<GenConMap />} />
+            <Route path="/data-sync" element={<DataSyncPage />} />
           </Routes>
         </Layout>
       </Router>

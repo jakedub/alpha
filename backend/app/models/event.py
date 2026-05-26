@@ -84,6 +84,8 @@ class Event(models.Model):
     special_category = models.CharField(max_length=255, null=True, blank=True)
     tickets_available = models.IntegerField(null=True, blank=True)
     last_modified = models.DateField(auto_now=True)
+    raw = models.JSONField(default=dict)
+    event_id = models.IntegerField(null=True, blank=True, unique=True)
 
     def save(self, *args, **kwargs):
         if not self.game_id:

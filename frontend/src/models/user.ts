@@ -9,6 +9,7 @@ export interface User {
   username: string;
   email: string;
   mobility_aid: MobilityAid;
+  gencon_id: number;
   stair_preference: StairPreference;
   user_events?: UserEvent[];
   related_users?: RelatedUser[];

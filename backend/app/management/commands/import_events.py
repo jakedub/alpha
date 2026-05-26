@@ -1,123 +1,247 @@
 import csv
+import re
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
-from decimal import Decimal
+from pathlib import Path
+
 from django.core.management.base import BaseCommand
+
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / 'assets'
 from django.utils.timezone import make_aware
+
 from app.models.event import Event
 from app.models.location import Location
 from app.models.room import Room
 
+
+# ------------------------
+# Safe parsing utilities
+# ------------------------
+
+def clean(value):
+    return str(value).strip() if value not in [None, ""] else ""
+
+
+def safe_int(value):
+    value = clean(value)
+    try:
+        return int(value) if value else None
+    except ValueError:
+        return None
+
+
+def safe_decimal(value):
+    value = clean(value)
+    try:
+        return Decimal(value) if value else Decimal("0.00")
+    except (InvalidOperation, ValueError):
+        return Decimal("0.00")
+
+
+def safe_bool_yes(value):
+    return clean(value).lower() == "yes"
+
+
+def safe_split_first(value):
+    value = clean(value)
+    return value.split()[0] if value else None
+
+
+def parse_datetime(value, fmt):
+    value = clean(value)
+    if not value:
+        return None
+    try:
+        return make_aware(datetime.strptime(value, fmt))
+    except ValueError:
+        return None
+
+
 def parse_floor_level(room_name):
+    room_name = clean(room_name)
     for part in room_name.split():
         if part.isdigit():
             return int(part)
-        elif part and part[0].isdigit():
-            return int(''.join(filter(str.isdigit, part)))
-    return 1  # Default if no number
+        digits = "".join(filter(str.isdigit, part))
+        if digits:
+            return int(digits)
+    return 1
 
+def parse_event_id(game_id):
+    game_id = clean(game_id)
+    if not game_id:
+        return None
+    match = re.search(r'(\d+)$', game_id)
+    if match:
+        return int(match.group(1))
+    return None
+# ------------------------
+# Normalizers
+# ------------------------
 
 def determine_room_type(room_name):
-    if 'Hall' in room_name:
-        return 'Hall'
-    elif 'Lobby' in room_name:
-        return 'Lobby'
-    elif 'Ballroom' in room_name:
-        return 'Ballroom'
-    elif 'Field' in room_name:
-        return 'Lucas Oil Stadium Field'
-    elif 'Meeting Room' in room_name:
-        return 'Meeting Room'
+    room_name = clean(room_name)
+    if not room_name:
+        return None
+
+    mapping = {
+        "Hall": "Hall",
+        "Lobby": "Lobby",
+        "Ballroom": "Ballroom",
+        "Field": "Lucas Oil Stadium Field",
+        "Meeting Room": "Meeting Room",
+    }
+
+    for key, value in mapping.items():
+        if key in room_name:
+            return value
     return None
+
 
 def determine_location_name(location):
-    if 'ICC' in location:
-        return 'Indiana Convention Center'
-    elif 'JW' in location:
-        return 'JW Marriot'
-    elif 'Stadium' in location:
-        return 'Lucas Oil Stadium'
-    return None
+    location = clean(location)
 
+    if "ICC" in location:
+        return "Indiana Convention Center"
+    if "JW" in location:
+        return "JW Marriott"
+    if "Stadium" in location:
+        return "Lucas Oil Stadium"
+
+    return location or None
+
+
+# ------------------------
+# Command
+# ------------------------
 
 class Command(BaseCommand):
-    help = 'Import events from a CSV file and link to locations and rooms'
+    help = "Import events from a CSV file and link to locations and rooms"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'csv_file',
-            nargs='?',
-            default='app/assets/events.csv',
-            help='Path to the GenCon CSV file'
+            "csv_file",
+            nargs="?",
+            default=str(ASSETS_DIR / 'events.csv'),
+            help="Path to the GenCon CSV file",
         )
 
     def handle(self, *args, **kwargs):
-        file_path = kwargs['csv_file']
-        with open(file_path, newline='', encoding='utf-8') as csvfile:
+        file_path = kwargs["csv_file"]
+
+        inserted_count = 0
+        error_count = 0
+
+        with open(file_path, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
-# Normalize header keys to remove BOM from the first key
-            if reader.fieldnames:
-                reader.fieldnames[0] = reader.fieldnames[0].lstrip('\ufeff')
-            inserted_count = 0
-            error_count = 0
+
             for row in reader:
                 try:
-                    location_input = row['Location'].strip()
-                    location_name = determine_location_name(location_input) or location_input
-                    location, _ = Location.objects.get_or_create(name=location_name)
+                    def get(col):
+                        return clean(row.get(col))
 
-                    room_name = row['Room Name'].strip()
-                    floor_level = parse_floor_level(room_name)
-                    room_type = determine_room_type(room_name)
+                    # ------------------------
+                    # Location / Room
+                    # ------------------------
+                    location_input = get("Location")
+                    location_name = determine_location_name(location_input)
+
+                    location, _ = Location.objects.get_or_create(
+                        name=location_name or location_input
+                    )
+
+                    room_name = get("Room Name")
+
+                    room, _ = Room.objects.get_or_create(
+                        location=location,
+                        room_name=room_name
+                    )
+
+                    # ------------------------
+                    # Event Data
+                    # ------------------------
+                    duration = row.get("Duration")
                     try:
-                        room, _ = Room.objects.get_or_create(location=location, room_name=room_name)
-                    except Room.MultipleObjectsReturned:
-                        self.stdout.write(self.style.ERROR(f"Multiple Room entries for location='{location}' and room_name='{room_name}'. Skipping row #{reader.line_num}."))
-                        continue
-                    except Exception as e:
-                        self.stdout.write(self.style.ERROR(f"Unexpected error retrieving Room for location='{location}' and room_name='{room_name}': {e}. Skipping row #{reader.line_num}."))
-                        continue
+                        duration_hours = float(duration) if duration not in [None, ""] else None
+                    except ValueError:
+                        duration_hours = None
+
+                    last_modified_dt = parse_datetime(
+                        get("Last Modified"),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                    last_modified_date = last_modified_dt.date() if last_modified_dt else None
 
                     event_data = {
-                        'gaming_group': row['Group'],
-                        'title': row['Title'],
-                        'short_description': row['Short Description'],
-                        'long_description': row['Long Description'],
-                        'event_type': row['Event Type'].split(' - ')[0],
-                        'game_system': row['Game System'] or '',
-                        'rules_edition': row['Rules Edition'] or '',
-                        'minimum_players': int(row['Minimum Players']) if row['Minimum Players'] else None,
-                        'maximum_players': int(row['Maximum Players']) if row['Maximum Players'] else None,
-                        'minimum_age': row['Age Required'].split()[0],
-                        'experience_required': row['Experience Required'].split()[0],
-                        'materials_required': row['Materials Required'].strip().lower() == 'yes',
-                        'materials_required_details': row['Materials Required Details'],
-                        'start_time': make_aware(datetime.strptime(row['Start Date & Time'], '%m/%d/%Y %I:%M %p')),
-                        'duration_hours': float(row['Duration']) if row['Duration'] else None,
-                        'end_time': make_aware(datetime.strptime(row['End Date & Time'], '%m/%d/%Y %I:%M %p')),
-                        'gm_names': row['GM Names'],
-                        'website': row['Website'] or '',
-                        'email': row['Email'] or '',
-                        'tournament': row['Tournament?'].strip().lower() == 'yes',
-                        'round_number': int(row['Round Number']) if row['Round Number'] else None,
-                        'total_rounds': int(row['Total Rounds']) if row['Total Rounds'] else None,
-                        'attendee_registration': row['Attendee Registration?'],
-                        'cost': Decimal(row['Cost $']) if row['Cost $'] else Decimal('0.00'),
-                        'location': location,
-                        'room': room,
-                        'table_number': row['Table Number'],
-                        'special_category': row['Special Category'],
-                        'tickets_available': int(row['Tickets Available']) if row['Tickets Available'] else None,
-                        'last_modified': make_aware(datetime.strptime(row['Last Modified'], '%Y-%m-%d %H:%M:%S')).date(),
+                        "gaming_group": get("Group"),
+                        "title": get("Title"),
+                        "short_description": get("Short Description"),
+                        "long_description": get("Long Description"),
+
+                        "event_type": get("Event Type").split(" - ")[0] if get("Event Type") else None,
+                        "game_system": get("Game System"),
+                        "rules_edition": get("Rules Edition"),
+
+                        "minimum_players": safe_int(get("Minimum Players")),
+                        "maximum_players": safe_int(get("Maximum Players")),
+
+                        "minimum_age": safe_split_first(get("Age Required")),
+                        "experience_required": safe_split_first(get("Experience Required")),
+
+                        "materials_required": safe_bool_yes(get("Materials Required")),
+                        "materials_required_details": get("Materials Required Details"),
+
+                        "start_time": parse_datetime(
+                            get("Start Date & Time"),
+                            "%m/%d/%Y %I:%M %p",
+                        ),
+                        "end_time": parse_datetime(
+                            get("End Date & Time"),
+                            "%m/%d/%Y %I:%M %p",
+                        ),
+
+                        "duration_hours": duration_hours,
+
+                        "gm_names": get("GM Names"),
+                        "website": get("Website"),
+                        "email": get("Email"),
+
+                        "tournament": safe_bool_yes(get("Tournament?")),
+                        "round_number": safe_int(get("Round Number")),
+                        "total_rounds": safe_int(get("Total Rounds")),
+
+                        "attendee_registration": get("Attendee Registration?"),
+                        "cost": safe_decimal(get("Cost $")),
+
+                        "location": location,
+                        "room": room,
+
+                        "table_number": get("Table Number"),
+                        "special_category": get("Special Category"),
+
+                        "tickets_available": safe_int(get("Tickets Available")),
+                        "last_modified": last_modified_date,
+                        "event_id": parse_event_id(get("Game ID")),
                     }
 
-                    _, created = Event.objects.update_or_create(game_id=row['Game ID'], defaults=event_data)
+                    _, created = Event.objects.update_or_create(
+                        game_id=get("Game ID"),
+                        defaults=event_data,
+                    )
+
                     if created:
                         inserted_count += 1
+
                 except Exception as e:
                     error_count += 1
-                    self.stdout.write(self.style.ERROR(
-                    f"[ERROR] Could not import event '{row.get('Title', 'Unknown')}' "
-                    f"at row #{reader.line_num}: {str(e)}\nAvailable keys: {list(row.keys())}"
-                ))
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"[ERROR] Row #{reader.line_num} '{row.get('Title','Unknown')}': {e}"
+                        )
+                    )
 
-        self.stdout.write(self.style.SUCCESS(f"Import complete. Inserted: {inserted_count}, Errors: {error_count}"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Import complete. Inserted: {inserted_count}, Errors: {error_count}"
+            )
+        )

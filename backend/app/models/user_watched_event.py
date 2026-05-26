@@ -24,4 +24,7 @@ class UserWatchedEvent(models.Model):
         unique_together = ('user', 'event')
 
     def __str__(self):
-        return f"{self.user} → {self.event.game_id}, {self.event.title}"
+        if self.event:
+            return f"{self.user} → {self.event.game_id}, {self.event.title}"
+        else:
+            return f"{self.user} → No Event"

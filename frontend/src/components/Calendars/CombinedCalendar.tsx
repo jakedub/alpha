@@ -2,66 +2,102 @@ import React from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { EventInput, EventClickArg } from '@fullcalendar/core'; // Import this for typing
-import { Box, Container, Typography,  Modal} from '@mui/material';
+import { EventInput, EventClickArg } from '@fullcalendar/core';
 import listPlugin from '@fullcalendar/list';
 import '../Calendars/CalendarColors.css';
-import { useNavigate } from 'react-router-dom';
+import '../Calendars/CalendarTheme.css';
 import InteractionPlugin from '@fullcalendar/interaction';
 import { DateClickArg } from '@fullcalendar/interaction';
+import type { EventModalData } from '../Shared/Modal';
 
 interface CombinedCalendarProps {
   events: EventInput[];
   dayClickAction?: (arg: DateClickArg) => void;
-  onEventClick?: (title: string, description: string) => void;
+  onEventClick?: (data: EventModalData) => void;
 }
 
 const CombinedCalendar: React.FC<CombinedCalendarProps> = ({ events, dayClickAction, onEventClick }) => {
-  const navigate = useNavigate();
-  const eventClickAction = (data: EventClickArg) => {
-    const { title, start, extendedProps } = data.event;
-    const formattedStart = start?.toLocaleString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+  const handleEventClick = (arg: EventClickArg) => {
+    const { title, start, end, extendedProps } = arg.event;
+
+    const relatedUsers: { name: string }[] = extendedProps.user ?? [];
+    const attendees: string[] = [
+      ...(extendedProps.self_assigned ? ['You'] : []),
+      ...relatedUsers.map((u: any) => u.name),
+    ];
+
+    onEventClick?.({
+      title,
+      gameId:      extendedProps.event_game_id ?? '',
+      start:       start ?? new Date(),
+      end:         end   ?? new Date(),
+      location:    extendedProps.event_location ?? '',
+      room:        extendedProps.event_room     ?? null,
+      description: extendedProps.description   ?? '',
+      status:      extendedProps.status        ?? '',
+      attendees,
     });
-
-    const eventLocation = extendedProps.event_location || 'TBD';
-    const link = `/events/${extendedProps.event_game_id}`;
-    const relatedUsers = extendedProps.user || [];
-    const selfAssignedUser = extendedProps.self_assigned ? [{ name: 'You' }] : [];
-    const event_group = [...selfAssignedUser, ...relatedUsers];
-
-    const description = `Starts: ${formattedStart}\nLocation: ${eventLocation}\nUsers Attending: ${event_group.map((user: any) => user.name).join(', ')}\nDetails: ${link}`;
-
-    onEventClick?.(title, description);
-  }
-
+  };
 
   return (
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, listPlugin, InteractionPlugin]}
-      initialView='timeGridWeek'
-      initialDate='2025-07-30'
-      visibleRange={{
-        start: '2025-07-30',
-        end: '2025-08-05',
-      }}
+      initialView="timeGridWeek"
+      initialDate="2026-07-30"
+      visibleRange={{ start: '2026-07-30', end: '2026-08-05' }}
       events={events}
-      eventClick={eventClickAction}
+      eventClick={handleEventClick}
       dateClick={dayClickAction}
-      eventDidMount={(info)=> {
-        const related_user = info.event.extendedProps.related_user;
-      }}
       headerToolbar={{
-        right: 'timeGridWeek,timeGridDay, listWeek',
-        center: 'title'
+        left:   'prev,next today',
+        center: 'title',
+        right:  'timeGridWeek,timeGridDay',
       }}
-      firstDay={3} // 0=Sunday, 1=Monday, ..., 3=Wednesday
-      hiddenDays={[1, 2]} // hide Monday and Tuesday
+      firstDay={3}
+      hiddenDays={[1, 2]}
       eventClassNames={(arg) => arg.event.classNames}
+      eventContent={(arg) => {
+        const loc  = arg.event.extendedProps.event_location as string | undefined;
+        const room = arg.event.extendedProps.event_room     as string | undefined;
+
+        const subtitle = [loc, room].filter(Boolean).join(' · ');
+
+        return (
+          <div style={{
+            padding: '2px 5px',
+            overflow: 'hidden',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            cursor: 'pointer',
+          }}>
+            <div style={{
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              lineHeight: 1.3,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {arg.event.title}
+            </div>
+            {subtitle && (
+              <div style={{
+                fontSize: '0.67rem',
+                opacity: 0.8,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                lineHeight: 1.25,
+                marginTop: 1,
+              }}>
+                {subtitle}
+              </div>
+            )}
+          </div>
+        );
+      }}
     />
   );
 };

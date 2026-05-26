@@ -23,6 +23,6 @@ urlpatterns = [
     path("api/login/", api_login),
     path("api/logout/", api_logout),
     path("api/me/", api_me),
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^proxy/tiles/(?P<floor>[^/]+)/(?P<zoom>\d+)/(?P<x>\d+)/(?P<y>\d+)\.png$', tile_proxy)
 ]

@@ -35,17 +35,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     COLOR_CHOICES = [
-        ("#00F0FF", "Blue"),
-        ("#00FF81", "Green"),
-        ("#FFA900", "Orange"),
-        ("#FF6800", "Pumpkin"),
-        ("#6F2DBD", "Purple")
+        ("#f59e0b", "Amber"),
+        ("#fb923c", "Orange"),
+        ("#f87171", "Rose"),
+        ("#818cf8", "Indigo"),
+        ("#a78bfa", "Violet"),
+        ("#34d399", "Emerald"),
+        ("#38bdf8", "Sky"),
     ]
 
     color_code = models.CharField(
-    max_length=24,
-    choices=COLOR_CHOICES,
-    default="#00F0FF",  # fallback color
+        max_length=24,
+        choices=COLOR_CHOICES,
+        default="#f59e0b",
     )
 
     username = models.CharField(max_length=255, unique=True)
@@ -55,6 +57,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    gencon_id = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        unique=False
+    )
 
     objects = CustomUserManager()
 

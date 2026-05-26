@@ -1,167 +1,166 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api/api';
 import type { Vendor } from '../../models/vendors';
-import { IconButton, useTheme, Card, Grid, Typography, Box, Fab } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Link } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Chip,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import VendorFilter from './VendorFilter';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 const VendorList = () => {
+  const theme = useTheme();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<string[]>([]); // tag filters
+  const [filters, setFilters] = useState<string[]>([]);
   const [selectedVendors, setSelectedVendors] = useState<Vendor[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const theme = useTheme();
-
-  const topRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
-    const fetchAllVendors = async () => {
+    const fetchAll = async () => {
       try {
-        let allVendors: Vendor[] = [];
+        let all: Vendor[] = [];
         let url = '/vendors/';
         while (url) {
           const res = await api.get(url);
-          allVendors = [...allVendors, ...res.data.results];
+          all = [...all, ...res.data.results];
           url = res.data.next;
         }
-        setVendors(allVendors);
+        setVendors(all);
       } catch {
         setError('Failed to load vendors.');
       }
     };
-
-    fetchAllVendors();
+    fetchAll();
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => setScrollPosition(window.scrollY);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const nearTop = scrollPosition < 100;
-
-  // Filtering logic
   const filteredVendors = vendors.filter((vendor) => {
     const matchesTags =
       filters.length === 0 ||
-      (filters.includes("no_tag") && (!vendor.tags || vendor.tags.length === 0)) ||
-      vendor.tags?.some(tag => filters.includes(tag.name));
-    const matchesSelectedVendors =
-      selectedVendors.length === 0 || selectedVendors.some(sel => sel.gencon_id === vendor.gencon_id);
+      (filters.includes('no_tag') && (!vendor.tags || vendor.tags.length === 0)) ||
+      vendor.tags?.some((tag) => filters.includes(tag.name));
+    const matchesSelected =
+      selectedVendors.length === 0 ||
+      selectedVendors.some((sel) => sel.gencon_id === vendor.gencon_id);
     const matchesSearch = vendor.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesTags && matchesSelectedVendors && matchesSearch;
+    return matchesTags && matchesSelected && matchesSearch;
   });
 
   return (
-    <>
-      <div ref={topRef} />
-      <Box sx={{ padding: 2, backgroundColor: theme.palette.background.default }}>
-        <Typography variant="h4" gutterBottom>
-          Vendors
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Browse through the list of vendors available at the event. Total Vendors: {filteredVendors.length}
-        </Typography>
-        <Box display="flex" flexDirection="row" maxWidth={1200} margin="0 auto" width="100%">
-          <Box flexGrow={1}>
-            <div className="filtered-results">
-              <Box
-                sx={{
-                  position: 'relative',
-                  height: 'calc(100vh - 100px)',
-                  overflowY: 'auto',
-                  width: '100%',
-                  paddingTop: '20px',
-                  padding: 2,
-                  scrollbarWidth: 'none',
-                  '&::-webkit-scrollbar': { display: 'none' },
-                }}
-              >
-                {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}
-                <Box sx={{ marginTop: 2 }}>
-                  <Grid container spacing={2} justifyContent="center" maxWidth="lg">
-                    {filteredVendors.map((vendor) => (
-                      <Grid item xs={12} sm={6} md={4} lg={4} key={vendor.gencon_id}>
-                        <Card sx={{ padding: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body1">{vendor.name}</Typography>
-                          <IconButton
-                            component={Link}
-                            to={`/vendors/${vendor.gencon_id}`}
-                            aria-label="View vendor details"
-                            sx={{
-                              backgroundColor: theme.palette.background.paper,
-                              borderRadius: '50%',
-                              color: theme.palette.text.disabled,
-                              padding: '8px',
-                              '&:hover': { backgroundColor: '#c0c0c0' },
-                            }}
-                          >
-                            <OpenInNewIcon />
-                          </IconButton>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Box>
-              </Box>
-            </div>
-          </Box>
-          <Box
-            sx={{
-              position: 'sticky',
-              top: 10,
-              height: '50vh',
-              backgroundColor: theme.palette.background.paper,
-              zIndex: theme.zIndex.appBar + 1,
-              padding: 2,
-              boxSizing: 'border-box',
-              marginTop: '75px',
-              borderLeft: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <VendorFilter
-              vendors={vendors}
-              selectedTags={filters}
-              onTagChange={setFilters}
-              selectedVendors={selectedVendors}
-              setSelectedVendors={setSelectedVendors}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              tags={vendors.flatMap(v => v.tags ?? []).map(tag => tag.name)}
-            />
-          </Box>
+    <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+
+      {/* Filter sidebar */}
+      <Box
+        sx={{
+          width: 280,
+          flexShrink: 0,
+          bgcolor: 'background.paper',
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2,
+          p: 2,
+          position: 'sticky',
+          top: 80,
+          maxHeight: 'calc(100vh - 96px)',
+          overflowY: 'auto',
+        }}
+      >
+        <VendorFilter
+          vendors={vendors}
+          selectedTags={filters}
+          onTagChange={setFilters}
+          selectedVendors={selectedVendors}
+          setSelectedVendors={setSelectedVendors}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          tags={vendors.flatMap((v) => v.tags ?? []).map((tag) => tag.name)}
+        />
+      </Box>
+
+      {/* Results */}
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h5" fontWeight={700}>Vendors</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {filteredVendors.length} of {vendors.length}
+          </Typography>
         </Box>
 
-        {/* Scroll buttons */}
-        {nearTop ? (
-          <Fab
-            color="primary"
-            aria-label="scroll down"
-            onClick={() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1200 }}
-          >
-            <ArrowDownwardIcon />
-          </Fab>
-        ) : (
-          <Fab
-            color="secondary"
-            aria-label="scroll up"
-            onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            sx={{ position: 'fixed', bottom: 80, right: 16, zIndex: 1200 }}
-          >
-            <ArrowUpwardIcon />
-          </Fab>
-        )}
-        <div ref={scrollRef} />
+        {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+
+        {/* Card grid */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 2,
+          }}
+        >
+          {filteredVendors.map((vendor) => (
+            <Card
+              key={vendor.gencon_id}
+              sx={{
+                transition: 'box-shadow 0.2s, border-color 0.2s',
+                '&:hover': {
+                  boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
+                  borderColor: theme.palette.primary.main,
+                },
+              }}
+            >
+              <CardActionArea component={Link} to={`/vendors/${vendor.gencon_id}`}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                      <StorefrontIcon sx={{ fontSize: 18, color: 'text.secondary', flexShrink: 0 }} />
+                      <Typography variant="subtitle2" fontWeight={600} noWrap>
+                        {vendor.name}
+                      </Typography>
+                    </Box>
+                    <ArrowForwardIosIcon sx={{ fontSize: 12, color: 'text.secondary', flexShrink: 0, mt: 0.3 }} />
+                  </Box>
+
+                  {vendor.booth_number && (
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                      Booth {vendor.booth_number}
+                    </Typography>
+                  )}
+
+                  {vendor.tags && vendor.tags.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {vendor.tags.slice(0, 3).map((tag) => (
+                        <Chip
+                          key={tag.name}
+                          label={tag.name.replace(/_/g, ' ')}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: '0.65rem', height: 18 }}
+                        />
+                      ))}
+                      {vendor.tags.length > 3 && (
+                        <Chip
+                          label={`+${vendor.tags.length - 3}`}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: '0.65rem', height: 18 }}
+                        />
+                      )}
+                    </Box>
+                  )}
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          ))}
+        </Box>
       </Box>
-    </>
+    </Box>
   );
 };
 

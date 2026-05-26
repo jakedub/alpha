@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from app.models.calendar_event import CalendarEvent
+from .vendor_visit_serializer import VendorVisitSerializer
 
 
 class CalendarEventSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     effective_start_time = serializers.SerializerMethodField()
     effective_end_time = serializers.SerializerMethodField()
+    vendor_visit = VendorVisitSerializer(read_only=True)
 
     class Meta:
         model = CalendarEvent

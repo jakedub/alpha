@@ -70,10 +70,11 @@ Array.from(document.body.children).forEach(child => {
                 print(f"📸 Saved {path}")
         browser.close()
 
-def stitch_images(output_dir, rows, cols, tile_width=1024, tile_height=768):
+def stitch_images(output_dir, rows, cols, tile_width=1280, tile_height=920):
+    # Canvas: cols wide with no horizontal gaps; rows tall with 5px vertical gaps for seams
     stitched_image = Image.new(
         "RGB",
-        (cols * tile_width + (cols - 1) * 210, rows * tile_height + (rows - 1) * 5)
+        (cols * tile_width, rows * tile_height + (rows - 1) * 5)
     )
     for row in range(rows):
         for col in range(cols):
@@ -83,12 +84,12 @@ def stitch_images(output_dir, rows, cols, tile_width=1024, tile_height=768):
                 continue
             tile_img = Image.open(img_path)
             width, height = tile_img.size
+            # Crop the 40px nav bar from the top; resulting tile is tile_width × tile_height
             tile = tile_img.crop((0, 40, width, height))
-            draw = ImageDraw.Draw(tile)
-            draw.rectangle([0, 0, tile_width - 1, tile_height - 1], outline="red", width=2)
-            # Flip vertical order so row 0 is at the top and increasing row numbers go down
-            vertical_offset = (rows - 1 - row) * (tile_height + 5) - 5
-            horizontal_offset = (col * tile_width) + (col * 210)
+            # Row 0 captured at lowest latitude → place at bottom; highest row → top.
+            # Formula: last row (highest lat) starts at y=0, each earlier row shifts down.
+            vertical_offset = (rows - 1 - row) * (tile_height + 5)
+            horizontal_offset = col * tile_width
             stitched_image.paste(tile, (horizontal_offset, vertical_offset))
     stitched_path = os.path.join(output_dir, "stitched_map.png")
     stitched_image.save(stitched_path)

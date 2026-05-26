@@ -11,6 +11,7 @@ export interface UserEvent {
   id: number;
   self_assigned: boolean;
   event_location: string;
+  event_room?: string | null;
   event_latitude: number;
   event_longitude: number;
 }

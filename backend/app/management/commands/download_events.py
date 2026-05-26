@@ -1,16 +1,20 @@
 from django.core.management.base import BaseCommand
+from pathlib import Path
 import requests
 import pandas as pd
 import os
 import openpyxl
 
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / 'assets'
+
 class Command(BaseCommand):
-    help = "Fetches and downloads events from the GenCon API and saves to app/assets/events.json"
+    help = "Fetches and downloads events from the GenCon API and saves to app/assets/events.csv"
 
     def handle(self, *args, **kwargs):
+        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         xlsx_url = "https://www.gencon.com/downloads/events.xlsx"
-        xlsx_path = "app/assets/events.xlsx"
-        csv_path = "app/assets/events.csv"
+        xlsx_path = ASSETS_DIR / 'events.xlsx'
+        csv_path = ASSETS_DIR / 'events.csv'
 
         try:
             self.stdout.write("Downloading GenCon events XLSX file...")

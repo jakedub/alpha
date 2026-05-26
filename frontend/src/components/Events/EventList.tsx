@@ -1,245 +1,236 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import qs from 'qs';
-import { useEffect, useState, useRef } from 'react';
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Chip,
+  Snackbar,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import api from '../../api/api';
 import { Event } from '../../models/events';
-import styles from './Event.module.css';
-import { formatKey } from '../../utils/formatKey';
-import { Link } from 'react-router-dom';
-import {
-  Typography,
-  Box,
-  IconButton,
-  useTheme,
-  Button,
-  Collapse,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Fab
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import EventFilter from './EventFilter';
 import { Filters } from '../../types/filters';
-import Snackbar from '@mui/material/Snackbar';
 
+// ── Event-type color strip palette ─────────────────────────────────────────
+const EVENT_TYPE_COLORS: Record<string, string> = {
+  'BGM': '#00F0FF',
+  'RPG': '#7c3aed',
+  'TCG': '#FFA900',
+  'SEM': '#00FF81',
+  'NMN': '#FF6800',
+  'LRP': '#ec4899',
+  'MHE': '#06b6d4',
+  'WKS': '#f59e0b',
+  'EGS': '#84cc16',
+  'ANI': '#a855f7',
+};
 
-function Row({
+function eventTypeColor(type: string): string {
+  return EVENT_TYPE_COLORS[type?.toUpperCase()] ?? '#6b7280';
+}
+
+// ── Single event card ────────────────────────────────────────────────────────
+function EventCard({
   row,
-  onAddToCalendar,
-  showSnackbar,
   selectedEventIds,
+  showSnackbar,
   refreshUserEvents,
 }: {
   row: Event;
-  onAddToCalendar?: (eventId: number) => void;
-  showSnackbar: (message: string) => void;
   selectedEventIds: Set<string>;
+  showSnackbar: (msg: string) => void;
   refreshUserEvents: () => Promise<void>;
 }) {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [row.game_id]);
-
-  useEffect(() => {
-  }, [selectedEventIds, row.game_id]);
+  const isScheduled = selectedEventIds.has(row.game_id?.toString() ?? '');
+  const stripColor = eventTypeColor(row.event_type);
 
   const start = new Date(row.start_time);
   const end = new Date(row.end_time);
-  const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+  const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+  const isFree = !row.cost || row.cost === 0;
 
-
-  const handleAddToSchedule = async (eventId: string) => {
-    if (selectedEventIds.has(eventId)) {
-      showSnackbar('Event is already scheduled');
-      return;
-    }
+  const handleAddToSchedule = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isScheduled) { showSnackbar('Already in your schedule'); return; }
     try {
       const res = await api.get('/me/');
-      const isLoggedIn = res.status === 200;
-
-      if (!isLoggedIn) {
-        showSnackbar('You must be logged in to add this event');
-        return;
-      }
-
-      await api.post('/user_events/', {
-        event: eventId,
-        status: 'wishlist',
-      });
+      if (res.status !== 200) { showSnackbar('Sign in to add events'); return; }
+      await api.post('/user_events/', { event: row.game_id?.toString(), status: 'wishlist' });
       await refreshUserEvents();
-      showSnackbar('Event has been added');
-
-      // Removed debug log for event addition
-      if (onAddToCalendar) {
-        onAddToCalendar(Number(eventId));
-      }
+      showSnackbar('Added to schedule');
     } catch (err: any) {
       if (err.response?.status === 403 || err.response?.status === 401) {
-        showSnackbar('You must be logged in to add this event');
+        showSnackbar('Sign in to add events');
       } else {
-        console.error('Error adding event:', err);
-        showSnackbar('Oops a doodle');
+        showSnackbar('Something went wrong');
       }
     }
   };
 
-  const handleRemoveFromSchedule = async (eventId: string) => {
+  const handleRemoveFromSchedule = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     try {
       const res = await api.get('/user_events/');
-      // Use event_game_id for the match!
-      const matching = res.data.results
-        ? res.data.results.find((ue: any) => ue.event_game_id === eventId)
-        : res.data.find((ue: any) => ue.event_game_id === eventId);
-
-      if (!matching) {
-        showSnackbar('Event not found in your schedule');
-        return;
-      }
-
-      await api.delete(`/user_events/${matching.id}/`);
+      const results = res.data.results ?? res.data;
+      const match = results.find((ue: any) => ue.event_game_id === row.game_id?.toString());
+      if (!match) { showSnackbar('Event not found in schedule'); return; }
+      await api.delete(`/user_events/${match.id}/`);
       await refreshUserEvents();
-      showSnackbar('Event has been removed');
-    } catch (err) {
-      console.error('Error removing event:', err);
+      showSnackbar('Removed from schedule');
+    } catch {
       showSnackbar('Failed to remove event');
     }
   };
 
   return (
-    <>
+    <Card
+      sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.2s, border-color 0.2s',
+        '&:hover': {
+          boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
+          borderColor: theme.palette.primary.main,
+        },
+        ...(isScheduled && {
+          borderColor: `${theme.palette.primary.main}88`,
+        }),
+      }}
+    >
+      {/* Left color strip */}
+      <Box
+        sx={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 4,
+          bgcolor: stripColor,
+          borderRadius: '8px 0 0 8px',
+        }}
+      />
 
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-        <TableCell>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell>{row.event_type}</TableCell>
-        <TableCell>
-          {row.title}
-          <IconButton
-            component={Link}
-            to={`/events/${row.game_id}`}
+      <CardActionArea
+        component={Link}
+        to={`/events/${row.game_id}`}
+        sx={{ pl: '12px' }}
+      >
+        <CardContent sx={{ pb: '12px !important' }}>
+          {/* Top row: type badge + cost */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.75 }}>
+            <Chip
+              label={row.event_type}
+              size="small"
+              sx={{
+                fontSize: '0.65rem',
+                height: 20,
+                bgcolor: `${stripColor}22`,
+                color: stripColor,
+                border: `1px solid ${stripColor}55`,
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              label={isFree ? 'Free' : `$${row.cost}`}
+              size="small"
+              sx={{
+                fontSize: '0.7rem',
+                height: 20,
+                bgcolor: isFree ? `${theme.palette.primary.main}22` : 'transparent',
+                color: isFree ? theme.palette.primary.main : theme.palette.text.secondary,
+                border: isFree
+                  ? `1px solid ${theme.palette.primary.main}55`
+                  : `1px solid ${theme.palette.divider}`,
+                fontWeight: 600,
+              }}
+            />
+          </Box>
+
+          {/* Title */}
+          <Typography
+            variant="subtitle2"
+            fontWeight={600}
             sx={{
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: '50%',
-              color: theme.palette.text.disabled,
-              padding: '8px',
-              '&:hover': { backgroundColor: '#c0c0c0' }
+              mb: 1,
+              lineHeight: 1.35,
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
             }}
           >
-            <OpenInNewIcon />
-          </IconButton>
-        </TableCell>
-        <TableCell>{start.toLocaleString()}</TableCell>
-        <TableCell>{durationMinutes.toFixed(0)} min</TableCell>
-        <TableCell>${row.cost}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Typography variant="subtitle1" gutterBottom>Description</Typography>
-              <Typography>{row.short_description}</Typography>
-              <Typography sx={{ marginTop: 1 }}>
-                <strong>Location:</strong> {row.location.name}
+            {row.title}
+          </Typography>
+
+          {/* Meta row */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <CalendarTodayIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+              <Typography variant="caption" color="text.secondary">
+                {start.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
               </Typography>
-                <Typography>
-                  {selectedEventIds.has(row.game_id!.toString()) ? (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemoveFromSchedule(row.game_id!.toString())}
-                    >
-                      Remove Event
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      disabled={selectedEventIds.has(row.game_id!.toString())}
-                      onClick={() => {
-                        if (!row.game_id) {
-                          alert('Missing event ID. Please try another event.');
-                          return;
-                        }
-                        handleAddToSchedule(row.game_id!.toString());
-                      }}
-                    >
-                      Add to Schedule
-                    </Button>
-                  )}
-                </Typography>
             </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
-  );
-}
-function CollapsibleTable({
-  events,
-  onAddToCalendar,
-  showSnackbar,
-  selectedEventIds,
-  refreshUserEvents,
-}: {
-  events: Event[];
-  onAddToCalendar?: (eventId: number) => void;
-  showSnackbar: (message: string) => void;
-  selectedEventIds: Set<string>;
-  refreshUserEvents: () => Promise<void>;
-}) {
-  return (
-    <Box>
-      <Typography variant="subtitle2" sx={{ padding: 2 }}>
-        Showing {events.length} events
-      </Typography>
-      <TableContainer component={Paper} sx={{ marginBottom: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Type</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Start Time</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>Cost</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {events.map((event) => (
-              <Row
-                key={`${event.game_id}-${event.start_time}`}
-                row={event}
-                onAddToCalendar={onAddToCalendar}
-                showSnackbar={showSnackbar}
-                selectedEventIds={selectedEventIds}
-                refreshUserEvents={refreshUserEvents}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-    
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <AccessTimeIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+              <Typography variant="caption" color="text.secondary">
+                {durationMinutes} min
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <LocationOnIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}
+              >
+                {row.location?.name ?? '—'}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Action button */}
+          {isScheduled ? (
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              startIcon={<CheckCircleIcon fontSize="small" />}
+              onClick={handleRemoveFromSchedule}
+              sx={{ fontSize: '0.75rem' }}
+            >
+              Scheduled
+            </Button>
+          ) : (
+            <Button
+              size="small"
+              variant="outlined"
+              color="primary"
+              onClick={handleAddToSchedule}
+              sx={{ fontSize: '0.75rem' }}
+            >
+              Add to Schedule
+            </Button>
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
 
+// ── Main EventList ───────────────────────────────────────────────────────────
 const EventList = ({
   events: initialEvents = [],
   onAddToCalendar,
@@ -262,147 +253,156 @@ const EventList = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [userEvents, setUserEvents] = useState<any[]>([]);
-    // Move refreshUserEvents to top-level in EventList
-const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
+  const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
 
-const refreshUserEvents = async () => {
-  try {
-    const res = await api.get('/user_events/');
-    const results = res.data.results || [];
-    setUserEvents(results);
-    const ids = new Set<string>();
-    results.forEach((ue: any) => {
-      // Prefer event_game_id, fallback to event
-      if (ue.event_game_id) {
-        ids.add(ue.event_game_id);
-      } else if (ue.event !== undefined && ue.event !== null) {
-        ids.add(ue.event.toString());
-      }
-    });
-    setSelectedEventIds(ids);
-  } catch (err) {
-    // Removed warning log for user events fetch failure
-  }
-};
-
-useEffect(() => {
-  refreshUserEvents();
-}, []);
-
-  const topRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-useEffect(() => {
-  const params: Record<string, string | string[] | number> = { page: 1 };
+  const activeFilterCount = Object.values(filters).flat().length;
 
-  if (filters.eventTypes.length) params.event_type = filters.eventTypes;
-  if (filters.gameSystems.length) params.game_system = filters.gameSystems;
-  if (filters.days.length) params.day = filters.days;
-  if (filters.groups.length) params.gaming_group = filters.groups;
-  if (filters.locations.length) params.location = filters.locations
-  if (filters.startTimes.length) params.start_time = filters.startTimes;
-  if (filters.ageRequirements.length) params.minimum_age = filters.ageRequirements;
-  if (filters.experienceLevels.length) params.experience_required = filters.experienceLevels;
+  const refreshUserEvents = async () => {
+    try {
+      const res = await api.get('/user_events/');
+      const results = res.data.results ?? [];
+      const ids = new Set<string>();
+      results.forEach((ue: any) => {
+        if (ue.event_game_id) ids.add(ue.event_game_id);
+        else if (ue.event != null) ids.add(ue.event.toString());
+      });
+      setSelectedEventIds(ids);
+    } catch {
+      // silently ignore — user may not be logged in
+    }
+  };
 
+  useEffect(() => { refreshUserEvents(); }, []);
 
-  api
-    .get('/events/', {
-      params,
-      paramsSerializer: (params) =>
-        qs.stringify(params, { arrayFormat: 'repeat' }), // key change here
-    })
-    .then((res) => {
-      const newEvents = Array.isArray(res.data?.results)
-        ? res.data.results
-        : Array.isArray(res.data)
-        ? res.data
-        : [];
-      setEvents(newEvents);
-      setHasMore(!!res.data?.next);
-      setTotalCount(res.data?.count || 0);
-      setPage(1);
-      if (loadingMore) scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    })
-    .catch(() => setError('Failed to load event list.'));
-}, [filters]);
+  // Fetch on filter change (reset to page 1)
   useEffect(() => {
-    const handleScroll = () => setScrollPosition(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const params: Record<string, string | string[] | number> = { page: 1 };
+    if (filters.eventTypes.length) params.event_type = filters.eventTypes;
+    if (filters.gameSystems.length) params.game_system = filters.gameSystems;
+    if (filters.days.length) params.day = filters.days;
+    if (filters.groups.length) params.gaming_group = filters.groups;
+    if (filters.locations.length) params.location = filters.locations;
+    if (filters.startTimes.length) params.start_time = filters.startTimes;
+    if (filters.ageRequirements.length) params.minimum_age = filters.ageRequirements;
+    if (filters.experienceLevels.length) params.experience_required = filters.experienceLevels;
 
-  const nearTop = scrollPosition < 100;
+    api
+      .get('/events/', { params, paramsSerializer: (p) => qs.stringify(p, { arrayFormat: 'repeat' }) })
+      .then((res) => {
+        const newEvents = Array.isArray(res.data?.results)
+          ? res.data.results
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+        setEvents(newEvents);
+        setHasMore(!!res.data?.next);
+        setTotalCount(res.data?.count ?? 0);
+        setPage(1);
+      })
+      .catch(() => setError('Failed to load events.'));
+  }, [filters]);
+
+  // Load more (append)
+  useEffect(() => {
+    if (page === 1) return;
+    const params: Record<string, string | string[] | number> = { page };
+    if (filters.eventTypes.length) params.event_type = filters.eventTypes;
+    if (filters.gameSystems.length) params.game_system = filters.gameSystems;
+    if (filters.days.length) params.day = filters.days;
+    if (filters.groups.length) params.gaming_group = filters.groups;
+    if (filters.locations.length) params.location = filters.locations;
+    if (filters.startTimes.length) params.start_time = filters.startTimes;
+    if (filters.ageRequirements.length) params.minimum_age = filters.ageRequirements;
+    if (filters.experienceLevels.length) params.experience_required = filters.experienceLevels;
+
+    api
+      .get('/events/', { params, paramsSerializer: (p) => qs.stringify(p, { arrayFormat: 'repeat' }) })
+      .then((res) => {
+        const newEvents = Array.isArray(res.data?.results) ? res.data.results : [];
+        setEvents((prev) => [...prev, ...newEvents]);
+        setHasMore(!!res.data?.next);
+        setLoadingMore(false);
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(() => setError('Failed to load more events.'));
+  }, [page]);
+
+  const showSnackbar = (msg: string) => {
+    setSnackbarMessage(msg);
+    setSnackbarOpen(true);
+  };
 
   return (
-    <div>
-      <div ref={topRef} />
-      <h2>Events</h2>
-      <div>
-        {error && <p>{error}</p>}
-        <Box>
-          <EventFilter events={events} filters={filters} onFilterChange={setFilters} />
-          <Box sx={{ marginTop: 2 }}>
-            <Typography variant="body2">Total Events: {totalCount}</Typography>
-          </Box>
-          <CollapsibleTable
-            events={events}
-            onAddToCalendar={onAddToCalendar}
-            showSnackbar={(message) => {
-              setSnackbarMessage(message);
-              setSnackbarOpen(true);
-            }}
-            selectedEventIds={selectedEventIds}
-            refreshUserEvents={refreshUserEvents}
-          />
-          <div ref={scrollRef} />
-          {hasMore && (
-            <Box textAlign="center" mt={2}>
-              <Button
-                onClick={() => {
-                  setPage((prev) => prev + 1);
-                  setLoadingMore(true);
-                }}
-                sx={{ padding: '10px 20px', fontSize: '16px' }}
-                variant="contained"
-              >
-                Load More
-              </Button>
-            </Box>
-          )}
+    <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+      {/* Filter sidebar */}
+      <EventFilter events={events} filters={filters} onFilterChange={setFilters} />
+
+      {/* Results */}
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h5" fontWeight={700}>Events</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {totalCount.toLocaleString()} results
+            {activeFilterCount > 0 && ` · ${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`}
+          </Typography>
         </Box>
-        {loadingMore || nearTop ? (
-          <Fab
-            color="primary"
-            aria-label="scroll down"
-            onClick={() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1200 }}
-          >
-            <ArrowDownwardIcon />
-          </Fab>
-        ) : (
-          <Fab
-            color="secondary"
-            aria-label="scroll up"
-            onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            sx={{ position: 'fixed', bottom: 80, right: 16, zIndex: 1200 }}
-          >
-            <ArrowUpwardIcon />
-          </Fab>
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>
         )}
-      </div>
+
+        {/* Card grid */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: 2,
+          }}
+        >
+          {events.map((event) => (
+            <EventCard
+              key={`${event.game_id}-${event.start_time}`}
+              row={event}
+              selectedEventIds={selectedEventIds}
+              showSnackbar={showSnackbar}
+              refreshUserEvents={refreshUserEvents}
+            />
+          ))}
+        </Box>
+
+        <div ref={scrollRef} />
+
+        {/* Load more */}
+        {hasMore && (
+          <Box textAlign="center" mt={3}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                setPage((prev) => prev + 1);
+                setLoadingMore(true);
+              }}
+              disabled={loadingMore}
+            >
+              {loadingMore ? 'Loading…' : 'Load more'}
+            </Button>
+          </Box>
+        )}
+      </Box>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-    </div>
-    
+    </Box>
   );
 };
 
@@ -412,7 +412,6 @@ export const EventTable = ({
 }: {
   events: Event[];
   onAddToCalendar?: (eventId: number) => void;
-}) => {
-  return <EventList events={events} onAddToCalendar={onAddToCalendar} />;
-};
+}) => <EventList events={events} onAddToCalendar={onAddToCalendar} />;
+
 export default EventList;

@@ -9,7 +9,7 @@ class Vendor(models.Model):
     website_url = models.URLField(blank=True, null=True)
     map_url = models.URLField(blank=True, null=True)  # Link to Gen Con map location if any
     is_guest_exhibitor = models.BooleanField(default=False)  # True if this is a guest exhibitor
-    
+    makers_market = models.BooleanField(default=False)
     # Coordinates for placing vendor on the map
     map_x = models.FloatField(blank=True, null=True)
     map_y = models.FloatField(blank=True, null=True)

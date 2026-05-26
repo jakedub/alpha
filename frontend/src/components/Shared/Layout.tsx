@@ -1,91 +1,87 @@
 import React, { ReactNode, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
+  AppBar,
   Box,
   CssBaseline,
-  Drawer,
+  Divider,
   IconButton,
-  List,
-  ListItem,
-  ListItemButton,
   ListItemIcon,
   ListItemText,
-  styled,
+  Menu,
+  MenuItem,
+  Popover,
+  Tab,
+  Tabs,
+  Toolbar,
+  Tooltip,
+  Typography,
   useTheme,
 } from '@mui/material';
-import { motion } from 'framer-motion';
-import HomeIcon from '@mui/icons-material/Home';
+import CasinoIcon from '@mui/icons-material/Casino';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import EventIcon from '@mui/icons-material/Event';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import MapIcon from '@mui/icons-material/Map';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import GroupIcon from '@mui/icons-material/Group';
-import EventIcon from '@mui/icons-material/Event';
-import StadiumRoundedIcon from '@mui/icons-material/StadiumRounded';
-import LoginIcon from '@mui/icons-material/Login';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import LogoutIcon from '@mui/icons-material/Logout';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { blue, green, pink, purple } from '@mui/material/colors';
-import RoomSharpIcon from '@mui/icons-material/RoomSharp';
+import SyncIcon from '@mui/icons-material/Sync';
 import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/api';
 
-const HamburgerToggle = ({ isOpen }: { isOpen: boolean }) => (
-  <Box
-    component={motion.div}
-    animate={isOpen ? 'open' : 'closed'}
-    sx={{ width: 24, height: 24, position: 'relative' }}
-  >
-    <Box
-      component={motion.span}
-      variants={{ open: { rotate: 45, top: '50%' }, closed: { rotate: 0, top: 4 } }}
-      transition={{ duration: 0.3 }}
-      sx={{
-        position: 'absolute', left: 0, width: '100%', height: 2, bgcolor: 'currentColor',
-        borderRadius: 1, transformOrigin: 'center',
-      }}
-    />
-    <Box
-      component={motion.span}
-      variants={{ open: { opacity: 0 }, closed: { opacity: 1 } }}
-      transition={{ duration: 0.3 }}
-      sx={{
-        position: 'absolute', top: '50%', left: 0, width: '100%', height: 2,
-        bgcolor: 'currentColor', borderRadius: 1, transform: 'translateY(-50%)',
-      }}
-    />
-    <Box
-      component={motion.span}
-      variants={{ open: { rotate: -45, top: '50%' }, closed: { rotate: 0, top: 16 } }}
-      transition={{ duration: 0.3 }}
-      sx={{
-        position: 'absolute', left: 0, width: '100%', height: 2, bgcolor: 'currentColor',
-        borderRadius: 1, transformOrigin: 'center',
-      }}
-    />
-  </Box>
-);
+// ── Primary nav tabs ────────────────────────────────────────────────────────
+const PRIMARY_TABS = [
+  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon fontSize="small" /> },
+  { label: 'Events', path: '/events', icon: <EventIcon fontSize="small" /> },
+  { label: 'Schedule', path: '/fullcalendar2', icon: <CalendarMonthIcon fontSize="small" /> },
+  { label: 'Vendors', path: '/vendors', icon: <StorefrontIcon fontSize="small" /> },
+  { label: 'Map', path: '/map', icon: <MapIcon fontSize="small" /> },
+];
 
-const drawerWidth = 240;
-const StyledDrawer = styled(Drawer)(({ theme }) => ({
-  '& .MuiDrawer-paper': {
-    backgroundColor: theme.palette.background.default,
-    color: theme.palette.text.secondary,
-    width: drawerWidth,
-    boxSizing: 'border-box',
-  },
-}));
+// Map a pathname to a tab index (-1 = no match)
+function resolveTabIndex(pathname: string): number {
+  // Exact or prefix match
+  const exact = PRIMARY_TABS.findIndex((t) => t.path === pathname);
+  if (exact !== -1) return exact;
+  // Parent prefix (e.g. /events/123 → Events tab)
+  return PRIMARY_TABS.findIndex((t) => t.path !== '/' && pathname.startsWith(t.path));
+}
 
-const Layout = ({ children }: { children: ReactNode }) => {
+// ── Layout ───────────────────────────────────────────────────────────────────
+interface LayoutProps {
+  children: ReactNode;
+  darkMode: boolean;
+  setDarkMode: (val: boolean) => void;
+}
+
+const Layout = ({ children, darkMode, setDarkMode }: LayoutProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
   const { user } = useAuth();
 
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const tabIndex = resolveTabIndex(location.pathname);
+
+  // Settings menu
+  const [settingsAnchor, setSettingsAnchor] = useState<null | HTMLElement>(null);
+  const settingsOpen = Boolean(settingsAnchor);
+
+  // User popover
+  const [userAnchor, setUserAnchor] = useState<null | HTMLElement>(null);
+  const userOpen = Boolean(userAnchor);
 
   const handleLogout = async () => {
+    setUserAnchor(null);
     try {
-      const res = await api.post('/logout/');
-      console.log('Logout response:', res.data);
+      await api.post('/logout/');
       navigate('/login');
       window.location.reload();
     } catch (err) {
@@ -93,88 +89,177 @@ const Layout = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const drawerItems = [
-    { text: 'Home', path: '/', icon: <HomeIcon /> },
-    { text: 'Event Route Map', path: '/event-route-map', icon: <RoomSharpIcon sx={{ color: purple[500] }} /> },
-    !user && { text: 'Login', path: '/login', icon: <LoginIcon /> },
-    { text: 'All Events', path: '/events', icon: <EventIcon /> },
-    // { text: 'Calendar 1', path: '/fullcalendar', icon: <CalendarMonthIcon /> },
-    { text: 'Calendar', path: '/fullcalendar2', icon: <CalendarMonthIcon sx={{ color: blue[500] }}/> },
-    { text: 'All Users', path: '/users', icon: <GroupIcon sx={{ color: green }} /> },
-    user && { text: 'Dashboard', path: '/dashboard', icon: <GroupIcon sx={{ color: blue[500] }} /> },
-    user && { text: 'Scheduler', path: '/scheduler', icon: <HomeIcon sx={{ color: blue[500] }} /> },
-    { text: 'Locations', path: '/locations', icon: <StadiumRoundedIcon /> },
-    { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon /> },
-    { text: 'Vendors', path: '/vendors', icon: <GroupIcon sx={{ color: pink[500] }} /> },
-    { text: 'Vendor Detail', path: '/vendors/:gencon_id', icon: <OpenInNewIcon /> },
-    // { text: 'Map', path:'/map', icon: <RoomSharpIcon sx={{ color: purple[500] }} />},
-    // { text: 'Calendar', path: '/calendar', icon: <HomeIcon sx={{ color: pink[500] }} /> },
-    user && { text: 'Logout', action: handleLogout, icon: <LogoutIcon /> },
-  ].filter(Boolean);
-
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ mt: 6 }}>
-        <List>
-          {drawerItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                sx={{ textAlign: 'left' }}
-                onClick={() => item.action ? item.action() : navigate(item.path!)}
-              >
-                <ListItemIcon sx={{ color: theme.palette.text.primary }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Box>
-  );
+  const settingsItems = [
+    { text: 'Locations', path: '/locations', icon: <LocationOnIcon fontSize="small" /> },
+    { text: 'Rooms', path: '/rooms', icon: <MeetingRoomIcon fontSize="small" /> },
+    { text: 'Users', path: '/users', icon: <GroupIcon fontSize="small" /> },
+    { text: 'Data Sync', path: '/data-sync', icon: <SyncIcon fontSize="small" /> },
+  ];
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: theme.palette.background.default }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
       <CssBaseline />
-      <motion.div
-        animate={{ x: mobileOpen ? drawerWidth + 10 : 0 }}
-        transition={{ duration: 0.3 }}
-        style={{
-          position: 'fixed',
-          top: 50,
-          left: 50,
-          zIndex: theme.zIndex.drawer + 1,
-        }}
-      >
-        <IconButton
-          edge="start"
-          aria-label="open drawer"
-          onClick={handleDrawerToggle}
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-            },
-          }}
-        >
-          <HamburgerToggle isOpen={mobileOpen} />
-        </IconButton>
-      </motion.div>
 
-      <Box component="nav">
-        <StyledDrawer
-          key={theme.palette.mode}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-        >
-          {drawer}
-        </StyledDrawer>
-      </Box>
+      {/* ── AppBar ─────────────────────────────────────────────────────────── */}
+      <AppBar position="sticky" elevation={0}>
+        <Toolbar sx={{ gap: 1 }}>
 
+          {/* Wordmark */}
+          <Box
+            onClick={() => navigate('/')}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.75,
+              cursor: 'pointer',
+              mr: 2,
+              flexShrink: 0,
+            }}
+          >
+            <CasinoIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'primary.main',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                fontSize: '1.1rem',
+              }}
+            >
+              ALPHA
+            </Typography>
+          </Box>
+
+          {/* Primary tabs — centered */}
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            <Tabs
+              value={tabIndex === -1 ? false : tabIndex}
+              onChange={(_e, newVal) => navigate(PRIMARY_TABS[newVal].path)}
+              textColor="inherit"
+              aria-label="primary navigation"
+            >
+              {PRIMARY_TABS.map((tab) => (
+                <Tab
+                  key={tab.path}
+                  label={tab.label}
+                  icon={tab.icon}
+                  iconPosition="start"
+                  disableRipple={false}
+                  sx={{ minHeight: 64 }}
+                />
+              ))}
+            </Tabs>
+          </Box>
+
+          {/* Right controls */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+
+            {/* Settings */}
+            <Tooltip title="Settings">
+              <IconButton
+                size="medium"
+                onClick={(e) => setSettingsAnchor(e.currentTarget)}
+                aria-label="open settings menu"
+                sx={{ color: 'text.secondary' }}
+              >
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              anchorEl={settingsAnchor}
+              open={settingsOpen}
+              onClose={() => setSettingsAnchor(null)}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              PaperProps={{
+                elevation: 3,
+                sx: { mt: 0.5, minWidth: 180, borderRadius: 2 },
+              }}
+            >
+              {settingsItems.map((item) => (
+                <MenuItem
+                  key={item.text}
+                  onClick={() => { setSettingsAnchor(null); navigate(item.path); }}
+                  sx={{ gap: 1, borderRadius: 1, mx: 0.5 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0 }}>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </MenuItem>
+              ))}
+            </Menu>
+
+            {/* Theme toggle */}
+            <Tooltip title={darkMode ? 'Light mode' : 'Dark mode'}>
+              <IconButton
+                size="medium"
+                onClick={() => setDarkMode(!darkMode)}
+                aria-label="toggle theme"
+                sx={{ color: 'text.secondary' }}
+              >
+                {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+              </IconButton>
+            </Tooltip>
+
+            {/* User button */}
+            <Tooltip title={user ? 'Account' : 'Log in'}>
+              <IconButton
+                size="medium"
+                onClick={(e) => setUserAnchor(e.currentTarget)}
+                aria-label="account menu"
+                sx={{ color: user ? 'primary.main' : 'text.secondary' }}
+              >
+                {user ? <AccountCircleIcon /> : <LoginIcon />}
+              </IconButton>
+            </Tooltip>
+            <Popover
+              open={userOpen}
+              anchorEl={userAnchor}
+              onClose={() => setUserAnchor(null)}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              PaperProps={{
+                elevation: 3,
+                sx: { mt: 0.5, p: 2, minWidth: 200, borderRadius: 2 },
+              }}
+            >
+              {user ? (
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    {(user as any).username ?? (user as any).email ?? 'Signed in'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1.5 }}>
+                    {(user as any).email ?? ''}
+                  </Typography>
+                  <Divider sx={{ mb: 1.5 }} />
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{ borderRadius: 1, px: 1, gap: 1, color: 'error.main' }}
+                  >
+                    <LogoutIcon fontSize="small" />
+                    <Typography variant="body2">Log out</Typography>
+                  </MenuItem>
+                </Box>
+              ) : (
+                <Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    You're not signed in.
+                  </Typography>
+                  <MenuItem
+                    onClick={() => { setUserAnchor(null); navigate('/login'); }}
+                    sx={{ borderRadius: 1, px: 1, gap: 1, color: 'primary.main' }}
+                  >
+                    <LoginIcon fontSize="small" />
+                    <Typography variant="body2">Log in</Typography>
+                  </MenuItem>
+                </Box>
+              )}
+            </Popover>
+
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* ── Page content ───────────────────────────────────────────────────── */}
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         {children}
       </Box>

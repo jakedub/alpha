@@ -1,9 +1,12 @@
 # backend/app/management/commands/fetch_vendors.py
 
 from django.core.management.base import BaseCommand
+from pathlib import Path
 import requests
 import json
 import os
+
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / 'assets'
 
 class Command(BaseCommand):
     help = "Fetches and combines vendor pages from GenCon API and saves to app/assets/exhibitors.json"
@@ -41,7 +44,8 @@ class Command(BaseCommand):
         combined_json = meta or {}
         combined_json["records"] = combined_records
 
-        output_file = os.path.join("app", "assets", "exhibitors.json")
+        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        output_file = ASSETS_DIR / 'exhibitors.json'
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(combined_json, f, indent=2, ensure_ascii=False)
 

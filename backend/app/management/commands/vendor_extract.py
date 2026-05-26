@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand
 import re
 import json
 from pathlib import Path
+
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / 'assets'
 from app.models.vendor import Vendor # Assuming Vendor is the model name
 
 class Command(BaseCommand):
@@ -9,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Read the JSON file
-        json_file_path = 'app/assets/exhibitors.json'
+        json_file_path = ASSETS_DIR / 'exhibitors.json'
         with open(json_file_path, 'r') as json_file:
             data = json.load(json_file)
             vendors_data = data.get('records', [])

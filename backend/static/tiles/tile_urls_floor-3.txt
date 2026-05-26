@@ -22,4 +22,3 @@ https://d2lkgynick4c0n.cloudfront.net/maps/v7/floor-3/3/0/4.png
 https://d2lkgynick4c0n.cloudfront.net/maps/v7/floor-3/3/5/4.png
 https://d2lkgynick4c0n.cloudfront.net/maps/v7/floor-3/3/0/7.png
 https://d2lkgynick4c0n.cloudfront.net/maps/v7/floor-3/3/5/7.png
-https://d2lkgynick4c0n.cloudfront.net/maps/v7/floor-3/7/127/3.png

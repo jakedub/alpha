@@ -8,4 +8,4 @@ class UserSerializer(serializers.ModelSerializer):
     related_users = RelatedUserSerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'mobility_aid', 'stair_preference', 'user_events', 'color_code', 'related_users']
+        fields = ['id', 'username', 'email', 'mobility_aid', 'stair_preference', 'user_events', 'color_code', 'related_users', 'gencon_id']

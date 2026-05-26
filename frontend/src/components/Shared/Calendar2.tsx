@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid } from '@mui/material';
+import { Box, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
 import { EventTable } from '../Events/EventList';
 import api from '../../api/api';
 import { UserEvent } from '../../models/user_event';
@@ -10,7 +10,7 @@ import { EventInput } from '@fullcalendar/core';
 import { DateClickArg } from '@fullcalendar/interaction';
 import CombinedCalendar from '../Calendars/CombinedCalendar';
 import MultiSelectForm from '../Forms/MultiSelectForm';
-import BasicModal from './Modal';
+import EventDetailModal, { type EventModalData } from './Modal';
 
 interface CombinedCalendarProps {
   events: EventInput[];
@@ -25,14 +25,12 @@ const Calendar2 = () => {
   const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
-  const handleOpen = (title: string, description: string) => {
-    setSelectedEvent({ title, description });
+  const [selectedEvent, setSelectedEvent] = useState<EventModalData | null>(null);
+
+  const handleOpen = (data: EventModalData) => {
+    setSelectedEvent(data);
     setOpen(true);
   };
-  const [selectedEvent, setSelectedEvent] = useState<{ title: string; description: string }>({
-    title: '',
-    description: ''
-  });
   const { user } = useAuth();
 
   // useEffect(() => {
@@ -69,9 +67,13 @@ useEffect(() => {
       self_assigned: ue.self_assigned,
       event_game_id: ue.event_game_id,
       extendedProps: {
-        event_game_id: ue.event_game_id,
-        user: ue.related_users,
-        event_location: ue.event_location
+        event_game_id:  ue.event_game_id,
+        description:    ue.event_short_description,
+        status:         ue.status,
+        user:           (ue as any).related_users,
+        self_assigned:  ue.self_assigned,
+        event_location: ue.event_location,
+        event_room:     ue.event_room ?? null,
       },
       related_user_ids: ue.related_users?.map((ru: any) => String(ru.id)) || []
     }));
@@ -173,47 +175,55 @@ const filteredEvents = events.filter((event: any) => {
   };
 
   return (
-    <><div>
-      <Box sx={{
-        boxShadow: 3, padding: '20px', display: 'flex', justifyContent: 'space-evenly', marginBottom: '20px'
-      }}>
-        <Box sx={{ width: '30%' }}>
-          <MultiSelectForm
-            label={'Category'}
-            options={categoryOptions} />
-        </Box>
-        {/*
-      Add support for default selected user (the logged-in user).
-    */}
-        <Box sx={{ width: '30%' }}>
-          {(() => {
-            const defaultUserOption = user ? [{ value: String(user.id), label: user.username }] : [];
-            return (
-              <MultiSelectForm
-                label={'List of Users'}
-                options={userOptions}
-                defaultValues={defaultUserOption.map(opt => opt.value)}
-                onChange={setSelectedUserIds} />
-            );
-          })()}
-        </Box>
-        <Box sx={{ width: '30%' }}></Box>
-      </Box>
-      <Box sx={{
-        boxShadow: 3, padding: '20px'
-      }}>
-        <CombinedCalendar
-          events={selectedUserIds.length ? filteredEvents : events}
-          dayClickAction={() => {}}
-          onEventClick={(title, description) => handleOpen(title, description)}
-        />
-      </Box>
-    </div><BasicModal
+    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+
+      {/* Filter bar */}
+      <Card sx={{ mb: 2 }}>
+        <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+          <Typography variant="overline" color="text.secondary" fontWeight={600}
+            sx={{ letterSpacing: '0.08em', display: 'block', mb: 1.5 }}>
+            Filters
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+            <Box sx={{ minWidth: 200 }}>
+              <MultiSelectForm label="Category" options={categoryOptions} />
+            </Box>
+            <Box sx={{ minWidth: 200 }}>
+              {(() => {
+                const defaultUserOption = user
+                  ? [{ value: String(user.id), label: user.username }]
+                  : [];
+                return (
+                  <MultiSelectForm
+                    label="Users"
+                    options={userOptions}
+                    defaultValues={defaultUserOption.map((opt) => opt.value)}
+                    onChange={setSelectedUserIds}
+                  />
+                );
+              })()}
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Calendar */}
+      <Card>
+        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+          <CombinedCalendar
+            events={selectedUserIds.length ? filteredEvents : events}
+            dayClickAction={() => {}}
+            onEventClick={(data) => handleOpen(data)}
+          />
+        </CardContent>
+      </Card>
+
+      <EventDetailModal
         open={open}
         setOpen={setOpen}
-        title={selectedEvent.title}
-        description={selectedEvent.description}
-      /></>
+        event={selectedEvent}
+      />
+    </Box>
   );
 };
 

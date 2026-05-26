@@ -8,7 +8,8 @@ class Command(BaseCommand):
     help = "Create json file for tile insertion."
 
     def handle(self, *args, **kwargs):
-        tiles_dir = Path("/Users/jacob.moore/Documents/alpha/backend/static/tiles")
+        BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+        tiles_dir = BASE_DIR / "static" / "tiles"
         tile_pattern = re.compile(r'maps/v7/floor-(\d+)/(\d+)/(\d+)/(\d+)\.png')
 
         tile_metadata = {}

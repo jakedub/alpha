@@ -26,11 +26,13 @@ export const StairPreferenceOptions = [
 ];
 
 export const ColorOptions = [
-  { value: "#00F0FF", label: "Blue" },
-  { value: "#00FF81", label: "Green" },
-  { value: "#FFA900", label: "Orange" },
-  { value: "#FF6800", label: "Pumpkin" },
-  { value: "#6F2DBD", label: "Purple" }, // Fixed typo: removed extra '#'
+  { value: "#f59e0b", label: "Amber"   },
+  { value: "#fb923c", label: "Orange"  },
+  { value: "#f87171", label: "Rose"    },
+  { value: "#818cf8", label: "Indigo"  },
+  { value: "#a78bfa", label: "Violet"  },
+  { value: "#34d399", label: "Emerald" },
+  { value: "#38bdf8", label: "Sky"     },
 ] as const;
 
 export type ColorCode = typeof ColorOptions[number]['value'];

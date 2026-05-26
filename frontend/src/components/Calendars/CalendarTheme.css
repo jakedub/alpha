@@ -1,0 +1,128 @@
+/*
+  FullCalendar dark-mode overrides for Alpha.
+  Applied globally — relies on the .fc root receiving the dark class
+  or we scope via the [data-theme] approach. Since MUI controls the
+  theme at JS level, we target .fc directly and let the dark palette
+  win via CSS specificity when dark mode is active.
+*/
+
+/* ── Amber button accent ───────────────────────────────────────────────── */
+.fc .fc-button-primary {
+  background-color: #374151 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f9fafb !important;
+  text-transform: none !important;
+  font-family: 'Inter', Arial, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 0.8rem !important;
+  border-radius: 6px !important;
+  transition: background-color 0.15s !important;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #4b5563 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #111827 !important;
+}
+
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* ── Grid / borders ────────────────────────────────────────────────────── */
+.fc {
+  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-neutral-bg-color: #1f2937;
+  --fc-page-bg-color: #111827;
+  --fc-list-event-hover-bg-color: rgba(245, 158, 11, 0.08);
+  --fc-today-bg-color: rgba(245, 158, 11, 0.06);
+  --fc-highlight-color: rgba(245, 158, 11, 0.12);
+  --fc-event-bg-color: #f59e0b;
+  --fc-event-border-color: #d97706;
+  --fc-event-text-color: #111827;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+/* ── Column headers ────────────────────────────────────────────────────── */
+.fc .fc-col-header-cell {
+  background-color: #1f2937;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #9ca3af;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none !important;
+  padding: 6px 4px;
+}
+
+/* ── Time slots ────────────────────────────────────────────────────────── */
+.fc .fc-timegrid-slot {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  color: #6b7280;
+  font-size: 0.72rem;
+}
+
+/* ── Day numbers (month view) ──────────────────────────────────────────── */
+.fc .fc-daygrid-day-number {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  text-decoration: none !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+/* ── Title ─────────────────────────────────────────────────────────────── */
+.fc .fc-toolbar-title {
+  color: #f9fafb;
+  font-size: 1rem !important;
+  font-weight: 600;
+}
+
+/* ── List view ─────────────────────────────────────────────────────────── */
+.fc .fc-list-day-cushion {
+  background-color: #1f2937;
+}
+
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  text-decoration: none !important;
+}
+
+.fc .fc-list-event-title a {
+  color: #f9fafb;
+  text-decoration: none;
+}
+
+.fc .fc-list-event:hover td {
+  background-color: rgba(245, 158, 11, 0.08);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
+.fc .fc-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+.fc .fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fc .fc-scroller::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}

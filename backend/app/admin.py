@@ -1,5 +1,6 @@
 # admin.py
-from datetime import timedelta, timezone
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib import admin
 from .models.event import Event
 from .models.location import Location
@@ -97,8 +98,8 @@ class HasTagsFilter(admin.SimpleListFilter):
 
 class VendorAdmin(ExportAsCSVActionMixin, admin.ModelAdmin):
     filter_horizontal = ('tags',)
-    list_display = ['name', 'booth_number', 'display_tags', 'id', 'gencon_id', 'is_guest_exhibitor']
-    list_filter = [HasTagsFilter, 'is_guest_exhibitor']  # 👈 Add this line
+    list_display = ['name', 'booth_number', 'display_tags', 'id', 'gencon_id', 'is_guest_exhibitor', 'makers_market']
+    list_filter = [HasTagsFilter, 'is_guest_exhibitor', 'makers_market']  # 👈 Add this line
     actions = ['export_as_csv', 'assign_tag_to_selected', 'merge_selected_vendors']
     search_fields = ['name']
 
@@ -158,42 +159,103 @@ class VendorAdmin(ExportAsCSVActionMixin, admin.ModelAdmin):
 
 admin.site.register(Vendor, VendorAdmin)
 
-class CalendarEventInlineForm(forms.ModelForm):
-    class Meta:
-        model = CalendarEvent
-        fields = '__all__'
+# ── Inlines ───────────────────────────────────────────────────────────────────
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Only set default if creating a new instance
-        if not self.instance.pk:
-            start = timezone.now()
-            self.fields['start_time'].initial = start
-            self.fields['end_time'].initial = start + timedelta(hours=1)
-            
-class CalendarEventInline(admin.StackedInline):
-    model = CalendarEvent
-    form = CalendarEventInlineForm
+class UserEventInline(admin.TabularInline):
+    """
+    Compact table view.  filter_horizontal removed — it pre-loads every
+    RelatedUser into a widget on each row, which is the main perf killer.
+    Related users are shown read-only; use the change-link to edit them.
+    """
+    model = UserEvent
     extra = 0
+    show_change_link = True
+    fields = ['event', 'status', 'self_assigned', 'related_users_display']
+    readonly_fields = ['related_users_display']
+    autocomplete_fields = ['event']   # EventAdmin already has search_fields
+
+    def related_users_display(self, obj):
+        if not obj.pk:
+            return '—'
+        names = [ru.name for ru in obj.related_users.all()]
+        return ', '.join(names) if names else '—'
+    related_users_display.short_description = 'Related Users'
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related('event', 'event__location', 'event__room')
+            .prefetch_related('related_users')
+        )
+
 
 class RelatedUserInLine(admin.TabularInline):
     model = RelatedUser
     extra = 0
+    fields = ['name', 'relationship', 'color_code']
 
-class UserEventInline(admin.StackedInline):
-    model = UserEvent
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            'id', 'user_id', 'name', 'relationship', 'color_code'
+        )
+
+
+class CalendarEventInline(admin.TabularInline):
+    """
+    GenCon-event CalendarEvents are auto-created by UserEvent.save(),
+    so show them read-only.  Custom/vendor events can still be added.
+    """
+    model = CalendarEvent
     extra = 0
-    filter_horizontal = ['related_users']
-    
+    show_change_link = True
+    fields = ['event_type', 'title_display', 'start_time', 'end_time']
+    readonly_fields = ['event_type', 'title_display', 'start_time', 'end_time']
+
+    def title_display(self, obj):
+        return str(obj)
+    title_display.short_description = 'Title'
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related('gencon_event', 'vendor_visit__vendor')
+        )
+
+
 class VendorVisitInline(admin.TabularInline):
     model = VendorVisit
     extra = 0
     fields = ['vendor', 'note_type']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('vendor')
+
+
+# ── UserAdmin ─────────────────────────────────────────────────────────────────
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     inlines = [UserEventInline, RelatedUserInLine, CalendarEventInline, VendorVisitInline]
+    fields = ['username', 'gencon_id', 'color_code']
+
+    def get_queryset(self, request):
+        """
+        Pre-fetch all inline data in a handful of queries instead of N+1.
+        Each inline's own get_queryset still fires for its sub-selects,
+        but the parent objects are already warm in Django's identity map.
+        """
+        return (
+            super().get_queryset(request)
+            .prefetch_related(
+                'user_events__event__location',
+                'user_events__event__room',
+                'user_events__related_users',
+                'related_users',
+                'calendar_events__gencon_event',
+                'calendar_events__vendor_visit__vendor',
+                'vendor_visits__vendor',
+            )
+        )
 
 class MapPickerMixin(forms.ModelForm):
     latitude_field_name = 'latitude'
@@ -248,8 +310,71 @@ class LocationForm(MapPickerMixin):
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    form = LocationForm
-    list_display = ['name', 'base_latitude', 'base_longitude']
+    list_display = ['name', 'address', 'base_latitude', 'base_longitude']
+    fields = ['name', 'address', 'base_latitude', 'base_longitude']
+    actions = ['merge_selected_locations']
+    search_fields = ['name']
+
+    def merge_selected_locations(self, request, queryset):
+        from app.models.room import Room
+        from django.db import transaction
+
+        if queryset.count() < 2:
+            self.message_user(request, "Select at least two locations to merge.", level=messages.WARNING)
+            return
+
+        # Keep the record with the lowest ID as the canonical one
+        primary = queryset.order_by('id').first()
+        duplicates = list(queryset.exclude(id=primary.id))
+        dup_count = len(duplicates)
+
+        from app.models.event import Event
+        from app.models.travel_connection import TravelConnection
+        from django.db import connection
+
+        # Check once whether the TravelConnection table actually exists in the DB.
+        # If not, we must bypass the ORM cascade when deleting rooms (otherwise
+        # Django's pre-delete collector tries to DELETE from the missing table).
+        tc_exists = 'app_travelconnection' in connection.introspection.table_names()
+
+        with transaction.atomic():
+            for loc in duplicates:
+                # ── Rooms: merge carefully to avoid unique_together violations ──
+                for dup_room in list(loc.rooms.all()):
+                    try:
+                        # Does an identical room already exist at the primary?
+                        primary_room = Room.objects.get(location=primary, room_name=dup_room.room_name)
+                    except Room.DoesNotExist:
+                        # Safe to reassign — no conflict
+                        dup_room.location = primary
+                        dup_room.save()
+                    else:
+                        # Duplicate room — repoint all FK refs then delete it
+                        Event.objects.filter(room=dup_room).update(room=primary_room)
+                        if tc_exists:
+                            TravelConnection.objects.filter(from_room=dup_room).update(from_room=primary_room)
+                            TravelConnection.objects.filter(to_room=dup_room).update(to_room=primary_room)
+                            dup_room.delete()
+                        else:
+                            # Skip ORM cascade — raw DELETE avoids touching the
+                            # missing app_travelconnection table
+                            with connection.cursor() as cur:
+                                cur.execute("DELETE FROM app_room WHERE id = %s", [dup_room.pk])
+
+                # ── Everything else is safe to bulk-update ────────────────────
+                loc.events.update(location=primary)
+                loc.entrances.update(location=primary)
+                loc.start_routes.update(start_location=primary)
+                loc.end_routes.update(end_location=primary)
+                loc.delete()
+
+        self.message_user(
+            request,
+            f"Merged {dup_count} location(s) into '{primary.name}' (id={primary.id}). "
+            f"Rename it if needed."
+        )
+
+    merge_selected_locations.short_description = "Merge selected locations into the oldest record"
 
 
 # Entrance
@@ -284,12 +409,11 @@ class UserEventForRelatedUserInline(admin.TabularInline):
 @admin.register(RelatedUser)
 class RelatedUserAdmin(admin.ModelAdmin):
     inlines = [UserEventForRelatedUserInline]
-    class Meta:
-        model = RelatedUser
-        fields = '__all__'
+    search_fields = ['name']   # required for autocomplete_fields in UserEventInline
+    list_display = ['name', 'relationship', 'user', 'color_code']
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'start_time', 'end_time', 'location', 'game_id']
+    list_display = ['title', 'start_time', 'end_time', 'location', 'game_id', 'event_id']
     search_fields = ['title', 'short_description', 'long_description', 'game_id']
     list_filter = ['location', 'game_system', 'event_type']
     date_hierarchy = 'start_time'
