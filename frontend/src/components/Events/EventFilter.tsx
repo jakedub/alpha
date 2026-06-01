@@ -9,16 +9,20 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
+  TextField,
   Typography,
   useTheme,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import api from '../../api/api';
+import type { Filters } from '../../types/filters';
 
 interface Event {
   event_type: string;
@@ -28,17 +32,6 @@ interface Event {
   location: { name: string };
   minimum_age: string;
   experience_required: string;
-}
-
-interface Filters {
-  eventTypes: string[];
-  gameSystems: string[];
-  days: string[];
-  groups: string[];
-  locations: string[];
-  startTimes: string[];
-  ageRequirements: string[];
-  experienceLevels: string[];
 }
 
 interface EventFilterProps {
@@ -55,19 +48,23 @@ const MenuProps = {
   },
 };
 
-const EMPTY_FILTERS: Filters = {
+export const AGE_REQUIREMENTS = ['Kids', 'Everyone', 'Teen', 'Mature', '21+'];
+export const EXPERIENCE_LEVELS = ['None', 'Some', 'Expert'];
+
+// Default state — age and experience are fully checked (no restriction).
+// "Clear all" resets to this, not to empty arrays.
+export const DEFAULT_FILTERS: Filters = {
+  search: '',
+  gameId: '',
   eventTypes: [],
   gameSystems: [],
   days: [],
   groups: [],
   locations: [],
   startTimes: [],
-  ageRequirements: [],
-  experienceLevels: [],
+  ageRequirements: [...AGE_REQUIREMENTS],
+  experienceLevels: [...EXPERIENCE_LEVELS],
 };
-
-const AGE_REQUIREMENTS = ['Kids', 'Everyone', 'Teen', 'Mature', '21+'];
-const EXPERIENCE_LEVELS = ['None', 'Some', 'Expert'];
 
 // ── Reusable multi-select dropdown ──────────────────────────────────────────
 function MultiSelect({
@@ -142,7 +139,20 @@ function MultiSelect({
 const EventFilter = ({ events, filters, onFilterChange }: EventFilterProps) => {
   const theme = useTheme();
 
-  // Accumulate unique values across pages
+  // ── All distinct groups + game systems from backend ──────────────────────
+  const [allGroups, setAllGroups] = React.useState<string[]>([]);
+  const [allGameSystems, setAllGameSystems] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    api.get('/events/distinct-values/')
+      .then((res) => {
+        setAllGroups(res.data.gaming_groups ?? []);
+        setAllGameSystems(res.data.game_systems ?? []);
+      })
+      .catch(() => {/* silently fall back to page-accumulated values */});
+  }, []);
+
+  // Accumulate unique values from current page (fallback + dynamic filters)
   const useUniqueValues = <T,>(
     keyExtractor: (event: Event) => T | undefined | null,
     formatter?: (value: T) => string,
@@ -163,19 +173,28 @@ const EventFilter = ({ events, filters, onFilterChange }: EventFilterProps) => {
   };
 
   const allEventTypes = useUniqueValues((e) => e.event_type);
-  const allGameSystems = useUniqueValues((e) => e.game_system);
   const allDays = useUniqueValues(
     (e) => new Date(e.start_time),
     (date) => date.toLocaleDateString(undefined, { weekday: 'long' }),
   );
-  const allGroups = useUniqueValues((e) => e.gaming_group);
   const allLocations = useUniqueValues((e) => e.location?.name);
 
   const startTimes: string[] = Array.from({ length: 24 }, (_, i) =>
     new Date(0, 0, 0, i).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   );
 
-  const activeCount = Object.values(filters).flat().length;
+  // Active filter count — age/experience only count when narrowed from default
+  const activeCount =
+    (filters.search ? 1 : 0) +
+    (filters.gameId ? 1 : 0) +
+    filters.eventTypes.length +
+    filters.gameSystems.length +
+    filters.days.length +
+    filters.groups.length +
+    filters.locations.length +
+    filters.startTimes.length +
+    (filters.ageRequirements.length < AGE_REQUIREMENTS.length ? 1 : 0) +
+    (filters.experienceLevels.length < EXPERIENCE_LEVELS.length ? 1 : 0);
 
   return (
     <Box
@@ -216,7 +235,7 @@ const EventFilter = ({ events, filters, onFilterChange }: EventFilterProps) => {
           <Button
             size="small"
             variant="text"
-            onClick={() => onFilterChange(EMPTY_FILTERS)}
+            onClick={() => onFilterChange(DEFAULT_FILTERS)}
             sx={{ fontSize: '0.75rem', px: 1, color: 'text.secondary' }}
           >
             Clear all
@@ -226,16 +245,54 @@ const EventFilter = ({ events, filters, onFilterChange }: EventFilterProps) => {
 
       <Divider />
 
+      {/* ── Text search ──────────────────────────────────────────────────── */}
+      <TextField
+        size="small"
+        label="Search"
+        placeholder="Title, group, game system…"
+        value={filters.search}
+        onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
+        InputProps={{
+          endAdornment: filters.search ? (
+            <InputAdornment position="end">
+              <IconButton size="small" onClick={() => onFilterChange({ ...filters, search: '' })}>
+                <CancelOutlinedIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        }}
+      />
+
+      {/* ── Event ID ─────────────────────────────────────────────────────── */}
+      <TextField
+        size="small"
+        label="Event ID"
+        placeholder="e.g. BGM26ND306431"
+        value={filters.gameId}
+        onChange={(e) => onFilterChange({ ...filters, gameId: e.target.value.trim() })}
+        InputProps={{
+          endAdornment: filters.gameId ? (
+            <InputAdornment position="end">
+              <IconButton size="small" onClick={() => onFilterChange({ ...filters, gameId: '' })}>
+                <CancelOutlinedIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        }}
+      />
+
+      <Divider />
+
       {/* Dropdowns */}
       <MultiSelect
         label="Event Type"
-        options={allEventTypes.current}
+        options={[...allEventTypes.current].sort((a, b) => a.localeCompare(b))}
         selected={filters.eventTypes}
         onChange={(val) => onFilterChange({ ...filters, eventTypes: val })}
       />
       <MultiSelect
         label="Game System"
-        options={allGameSystems.current}
+        options={allGameSystems}
         selected={filters.gameSystems}
         onChange={(val) => onFilterChange({ ...filters, gameSystems: val })}
       />
@@ -253,7 +310,7 @@ const EventFilter = ({ events, filters, onFilterChange }: EventFilterProps) => {
       />
       <MultiSelect
         label="Group"
-        options={allGroups.current}
+        options={allGroups}
         selected={filters.groups}
         onChange={(val) => onFilterChange({ ...filters, groups: val })}
       />

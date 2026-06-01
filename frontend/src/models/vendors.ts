@@ -9,10 +9,12 @@ export interface Vendor {
   gencon_id: string;      // gencon_id in Django
   name: string;
   booth_number?: string;  // optional, comma-separated booth numbers
-  websiteUrl?: string;
-  mapUrl?: string;
-  mapX?: number;
-  mapY?: number;
+  website_url?: string;
+  map_url?: string;
+  map_x?: number;
+  map_y?: number;
+  map_floor?: number;   // floor_level from Gen Con API (e.g. 1 = first floor)
+  map_polygon?: [number, number][];  // [[lng, lat], ...] booth outline corners
   description?: string;
   tags?: Tag[];          // many-to-many relation with tags
 }

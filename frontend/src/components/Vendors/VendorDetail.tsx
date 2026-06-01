@@ -118,13 +118,13 @@ const VendorDetail = () => {
             {vendor.description || 'No description available.'}
           </Typography>
 
-          {vendor.websiteUrl && (
+          {vendor.website_url && (
             <Button
               variant="outlined"
               size="small"
               endIcon={<OpenInNewIcon fontSize="small" />}
               component="a"
-              href={vendor.websiteUrl}
+              href={vendor.website_url}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -135,22 +135,22 @@ const VendorDetail = () => {
       </Card>
 
       {/* Map section */}
-      {vendor.mapUrl && (
+      {vendor.map_url && (
         <Card>
           <CardContent sx={{ pb: 1 }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={600}
               sx={{ textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1.5 }}>
               Floor Map
             </Typography>
-            {vendor.mapX && vendor.mapY && (
+            {vendor.map_x && vendor.map_y && (
               <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1.5 }}>
-                Coordinates: ({vendor.mapX}, {vendor.mapY})
+                Coordinates: ({vendor.map_x}, {vendor.map_y})
               </Typography>
             )}
           </CardContent>
           <CardMedia
             component="img"
-            image={vendor.mapUrl}
+            image={vendor.map_url}
             alt={`${vendor.name} map location`}
             sx={{
               maxHeight: 480,

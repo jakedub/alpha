@@ -13,6 +13,8 @@ class Vendor(models.Model):
     # Coordinates for placing vendor on the map
     map_x = models.FloatField(blank=True, null=True)
     map_y = models.FloatField(blank=True, null=True)
+    map_floor = models.IntegerField(blank=True, null=True)  # floor_level from Gen Con API (e.g. 1)
+    map_polygon = models.JSONField(blank=True, null=True)  # [[lng, lat], ...] booth outline from latlng
     
     description = models.TextField(blank=True, null=True)  # Optional additional info
     tags = models.ManyToManyField(Tag, blank=True, related_name='vendors')

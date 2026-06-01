@@ -1,0 +1,114 @@
+[
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Washington St Entrance",
+      "floor_level": 1,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Capitol Ave Entrance",
+      "floor_level": 1,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Georgia St Entrance",
+      "floor_level": 1,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Senate Ave Entrance",
+      "floor_level": 1,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Skywalk to JW Marriott",
+      "floor_level": 2,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Skywalk to Hyatt",
+      "floor_level": 2,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Skywalk to Westin",
+      "floor_level": 2,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  },
+  {
+    "model": "app.room",
+    "pk": null,
+    "fields": {
+      "location": null,
+      "room_name": "ICC Connector to Union Station",
+      "floor_level": 1,
+      "room_type": "building_exit",
+      "longitude": null,
+      "latitude": null,
+      "real_world_latitude": null,
+      "real_world_longitude": null
+    }
+  }
+]

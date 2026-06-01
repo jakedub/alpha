@@ -47,7 +47,9 @@ class Command(BaseCommand):
                 website_url = map_feature['names'][0].get('website', '')
 
             # Calculate average X and Y from latlng for pin placement
+            # Calculate centroid X and Y from latlng polygon for pin placement
             latlng = source.get('latlng', [])
+            map_floor = source.get('floor_level')
             if latlng:
                 try:
                     map_x = sum([float(p[0]) for p in latlng]) / len(latlng)
@@ -66,6 +68,8 @@ class Command(BaseCommand):
                     'map_url': map_url,
                     'map_x': map_x,
                     'map_y': map_y,
+                    'map_floor': map_floor,
+                    'map_polygon': [[float(p[0]), float(p[1])] for p in latlng] if latlng else None,
                     'is_guest_exhibitor': is_guest,
                 }
             )

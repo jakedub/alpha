@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Chip,
   Dialog,
   DialogContent,
@@ -10,6 +11,8 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -28,6 +31,7 @@ export interface EventModalData {
   description: string;
   status?: string;
   attendees: string[];
+  userEventId?: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -55,9 +59,11 @@ interface Props {
   open: boolean;
   setOpen: (v: boolean) => void;
   event: EventModalData | null;
+  onStatusChange?: (userEventId: number, newStatus: 'wishlist' | 'purchased') => void;
+  onRemove?: (userEventId: number) => void;
 }
 
-export default function EventDetailModal({ open, setOpen, event }: Props) {
+export default function EventDetailModal({ open, setOpen, event, onStatusChange, onRemove }: Props) {
   if (!event) return null;
 
   const statusColor = STATUS_COLORS[event.status ?? ''] ?? '#9ca3af';
@@ -110,6 +116,33 @@ export default function EventDetailModal({ open, setOpen, event }: Props) {
                 borderColor: `${statusColor}55`,
               }}
             />
+          )}
+          {event.userEventId && (event.status === 'wishlist' || event.status === 'purchased') && (
+            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+              {onStatusChange && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<SwapHorizIcon fontSize="small" />}
+                  onClick={() => onStatusChange(event.userEventId!, event.status === 'purchased' ? 'wishlist' : 'purchased')}
+                  sx={{ fontSize: '0.68rem', py: 0.25, px: 1, height: 22, minWidth: 0 }}
+                >
+                  {event.status === 'purchased' ? 'Move to Wishlist' : 'Mark as Purchased'}
+                </Button>
+              )}
+              {onRemove && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteOutlineIcon fontSize="small" />}
+                  onClick={() => onRemove(event.userEventId!)}
+                  sx={{ fontSize: '0.68rem', py: 0.25, px: 1, height: 22, minWidth: 0 }}
+                >
+                  Remove
+                </Button>
+              )}
+            </Box>
           )}
           <Typography variant="caption" color="text.disabled" fontFamily="monospace">
             {event.gameId}

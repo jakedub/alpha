@@ -9,7 +9,7 @@ class CharInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
     pass
 
 class EventFilter(django_filters.FilterSet):
-    game_id = django_filters.CharFilter(lookup_expr='exact')
+    game_id = django_filters.CharFilter(lookup_expr='icontains')
     gaming_group = django_filters.CharFilter(method='filter_gaming_group')
     title = django_filters.CharFilter(lookup_expr='icontains')
     short_description = django_filters.CharFilter(lookup_expr='icontains')

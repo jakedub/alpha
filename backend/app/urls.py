@@ -23,11 +23,13 @@ from .views.user_vendor_view import UserVendorViewSet
 from .views.vendor_view import VendorViewSet
 from .views.user_watched_event_view import UserWatchedEventViewSet
 from .views.calendar_event_view import CalendarEventViewSet
+from .views.notification_view import NotificationViewSet
 from .views.gencon_event_search_view import gencon_event_search
 from .views.event_search_view import EventSearchView
 
 
 from .views.upload_view import upload_csv
+from .views.pathfind_view import pathfind
 
 router = DefaultRouter()
 router.register(r'events', EventViewSet)
@@ -43,6 +45,7 @@ router.register(r'user-watched-events', UserWatchedEventViewSet)
 router.register(r'tags', TagViewSet)
 router.register(r'vendor_visits', VendorVisitViewSet)
 router.register(r'calendar_events', CalendarEventViewSet)
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -62,4 +65,6 @@ urlpatterns = [
     path('map-pipeline/status/',  map_pipeline_status),
     path('map-pipeline/extract/', trigger_map_extract),
     path('map-pipeline/stitch/',  trigger_map_stitch),
+
+    path('pathfind/', pathfind),
 ]

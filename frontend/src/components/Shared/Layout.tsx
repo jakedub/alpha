@@ -36,6 +36,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import SyncIcon from '@mui/icons-material/Sync';
 import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/api';
+import NotificationBell from './NotificationBell';
 
 // ── Primary nav tabs ────────────────────────────────────────────────────────
 const PRIMARY_TABS = [
@@ -153,6 +154,9 @@ const Layout = ({ children, darkMode, setDarkMode }: LayoutProps) => {
 
           {/* Right controls */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+
+            {/* Notifications */}
+            <NotificationBell />
 
             {/* Settings */}
             <Tooltip title="Settings">

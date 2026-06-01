@@ -1,4 +1,6 @@
 export interface Filters {
+  search: string;
+  gameId: string;
   eventTypes: string[];
   gameSystems: string[];
   days: string[];

@@ -218,7 +218,8 @@ const UserDetail = () => {
 
   useEffect(() => {
     if (user) {
-      setMobilityAid(user.mobility_aid || '');
+      const rawMobility = user.mobility_aid;
+      setMobilityAid(Array.isArray(rawMobility) ? (rawMobility[0] || '') : (rawMobility || ''));
       setStairPreference(user.stair_preference || '');
       setColorCode(user.color_code || '');
     }
@@ -244,11 +245,12 @@ const UserDetail = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.patch(`/users/${user?.id}/`, {
-        mobility_aid: mobilityAid || null,
-        stair_preference: stairPreference || null,
-        color_code: color_code || null,
-      });
+      const payload: Record<string, string> = {};
+      const mobilityValue = Array.isArray(mobilityAid) ? mobilityAid[0] : mobilityAid;
+      if (mobilityValue) payload.mobility_aid = mobilityValue;
+      if (stairPreference) payload.stair_preference = stairPreference;
+      if (color_code) payload.color_code = color_code;
+      await api.patch(`/users/${user?.id}/`, payload);
       showSnackbar('Preferences saved.');
       // Re-map with new color; preserve vendor/custom events from raw list
       const vendorAndCustom = calendarEventsRaw

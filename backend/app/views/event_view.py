@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from app.models.event import Event
 from app.models.user_event import UserEvent
@@ -11,7 +13,7 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_class = EventFilter 
+    filterset_class = EventFilter
     search_fields = [
         'event_type',
         'gaming_group',
@@ -38,3 +40,27 @@ class EventViewSet(viewsets.ModelViewSet):
         print(f"[➕ perform_create] Creating Event. User: {user} | Authenticated: {user.is_authenticated}")
         event = serializer.save()
         UserEvent.objects.create(user=user, event=event, status='wishlist')
+
+    @action(detail=False, methods=['get'], url_path='distinct-values', permission_classes=[IsAuthenticatedOrReadOnly])
+    def distinct_values(self, request):
+        """Return all unique gaming_group and game_system values for filter dropdowns."""
+        groups = (
+            Event.objects
+            .exclude(gaming_group__isnull=True)
+            .exclude(gaming_group='')
+            .values_list('gaming_group', flat=True)
+            .distinct()
+            .order_by('gaming_group')
+        )
+        game_systems = (
+            Event.objects
+            .exclude(game_system__isnull=True)
+            .exclude(game_system='')
+            .values_list('game_system', flat=True)
+            .distinct()
+            .order_by('game_system')
+        )
+        return Response({
+            'gaming_groups': list(groups),
+            'game_systems': list(game_systems),
+        })

@@ -36,6 +36,7 @@ const CombinedCalendar: React.FC<CombinedCalendarProps> = ({ events, dayClickAct
       description: extendedProps.description   ?? '',
       status:      extendedProps.status        ?? '',
       attendees,
+      userEventId: arg.event.id ? Number(arg.event.id) : undefined,
     });
   };
 
@@ -56,6 +57,11 @@ const CombinedCalendar: React.FC<CombinedCalendarProps> = ({ events, dayClickAct
       firstDay={3}
       hiddenDays={[1, 2]}
       eventClassNames={(arg) => arg.event.classNames}
+      eventDidMount={(info) => {
+        if (info.event.extendedProps.status === 'wishlist') {
+          info.el.style.opacity = '0.35';
+        }
+      }}
       eventContent={(arg) => {
         const loc  = arg.event.extendedProps.event_location as string | undefined;
         const room = arg.event.extendedProps.event_room     as string | undefined;

@@ -42,11 +42,15 @@ function AgendaEvent({ event }: { event: CalendarEvent }) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'flex-start',
+        textAlign: 'left',
         borderLeft: `3px solid ${color}`,
+        borderRadius: '0 6px 6px 0',
         pl: 1.25,
-        py: 0.25,
-        gap: 0.25,
+        py: 0.75,
+        gap: 0.4,
         minWidth: 0,
+        width: '100%',
       }}
     >
       <Typography
@@ -141,12 +145,13 @@ export const Calendar = ({ userEvents }: Props) => {
             style: {
               backgroundColor: event.color ?? '#f59e0b',
               color: '#111827',
-              borderRadius: '4px',
-              padding: '3px 6px',
-              border: 'none',
+              borderRadius: '8px',
+              padding: '4px 8px',
+              border: '1.5px solid rgba(255,255,255,0.35)',
               fontSize: '0.78rem',
               fontWeight: 600,
               cursor: 'pointer',
+              marginBottom: '6px',
             },
           })}
           components={{

@@ -24,12 +24,39 @@ const Calendar2 = () => {
   const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([]);
   const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventModalData | null>(null);
 
   const handleOpen = (data: EventModalData) => {
     setSelectedEvent(data);
     setOpen(true);
+  };
+
+  const handleStatusChange = async (userEventId: number, newStatus: 'wishlist' | 'purchased') => {
+    try {
+      await api.patch(`/user_events/${userEventId}/`, { status: newStatus });
+      setEvents((prev) =>
+        prev.map((ev: any) =>
+          Number(ev.id) === userEventId
+            ? { ...ev, status: newStatus, extendedProps: { ...ev.extendedProps, status: newStatus } }
+            : ev,
+        ),
+      );
+      setSelectedEvent((prev) => prev ? { ...prev, status: newStatus } : prev);
+    } catch (err) {
+      console.error('Failed to update event status', err);
+    }
+  };
+
+  const handleRemove = async (userEventId: number) => {
+    try {
+      await api.delete(`/user_events/${userEventId}/`);
+      setEvents((prev) => prev.filter((ev: any) => Number(ev.id) !== userEventId));
+      setOpen(false);
+    } catch (err) {
+      console.error('Failed to remove event', err);
+    }
   };
   const { user } = useAuth();
 
@@ -139,16 +166,21 @@ useEffect(() => {
 }, [user]);
 
 const filteredEvents = events.filter((event: any) => {
-  const assignedToIds: string[] = [];
-
-  if (event.self_assigned) {
-    assignedToIds.push(String(user?.id));
-  }
-  if (event.related_user_ids) {
-    assignedToIds.push(...event.related_user_ids);
+  // Category filter
+  if (selectedCategories.length > 0) {
+    const status = event.extendedProps?.status ?? event.status;
+    if (!selectedCategories.includes(status)) return false;
   }
 
-  return selectedUserIds.some(id => assignedToIds.includes(id));
+  // User filter
+  if (selectedUserIds.length > 0) {
+    const assignedToIds: string[] = [];
+    if (event.self_assigned) assignedToIds.push(String(user?.id));
+    if (event.related_user_ids) assignedToIds.push(...event.related_user_ids);
+    if (!selectedUserIds.some(id => assignedToIds.includes(id))) return false;
+  }
+
+  return true;
 });
   const handleAddToCalendar = async (eventId: number) => {
     try {
@@ -186,7 +218,7 @@ const filteredEvents = events.filter((event: any) => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             <Box sx={{ minWidth: 200 }}>
-              <MultiSelectForm label="Category" options={categoryOptions} />
+              <MultiSelectForm label="Category" options={categoryOptions} onChange={setSelectedCategories} />
             </Box>
             <Box sx={{ minWidth: 200 }}>
               {(() => {
@@ -211,7 +243,7 @@ const filteredEvents = events.filter((event: any) => {
       <Card>
         <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
           <CombinedCalendar
-            events={selectedUserIds.length ? filteredEvents : events}
+            events={filteredEvents}
             dayClickAction={() => {}}
             onEventClick={(data) => handleOpen(data)}
           />
@@ -222,6 +254,8 @@ const filteredEvents = events.filter((event: any) => {
         open={open}
         setOpen={setOpen}
         event={selectedEvent}
+        onStatusChange={handleStatusChange}
+        onRemove={handleRemove}
       />
     </Box>
   );

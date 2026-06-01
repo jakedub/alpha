@@ -223,3 +223,61 @@ def run_map_stitch(self):
             )
 
     return report
+
+
+@shared_task(bind=True)
+def check_watched_events(self):
+    """
+    Check all watched events for ticket availability changes.
+    Creates in-app Notifications and sends emails when tickets open up.
+    """
+    from django.core.mail import send_mail
+    from django.conf import settings as django_settings
+    from app.models.user_watched_event import UserWatchedEvent
+    from app.models.notification import Notification
+
+    watched = (
+        UserWatchedEvent.objects
+        .select_related('user', 'event')
+        .filter(event__isnull=False)
+    )
+
+    notified = 0
+    total = 0
+    for watch in watched:
+        event = watch.event
+        if event is None:
+            continue
+        total += 1
+        tickets_now = (event.tickets_available or 0) > 0
+
+        if tickets_now and not watch.last_known_status:
+            message = (
+                f'Tickets are now available for "{event.title}" '
+                f'(ID: {event.game_id}). '
+                f'Tickets available: {event.tickets_available}.'
+            )
+            Notification.objects.create(user=watch.user, event=event, message=message)
+
+            email = getattr(watch.user, 'email', None)
+            if email:
+                try:
+                    send_mail(
+                        subject=f'[Alpha] Tickets available: {event.title}',
+                        message=message,
+                        from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'alpha@localhost'),
+                        recipient_list=[email],
+                        fail_silently=True,
+                    )
+                except Exception:
+                    pass
+
+            watch.last_known_status = True
+            watch.save(update_fields=['last_known_status', 'last_checked'])
+            notified += 1
+
+        elif not tickets_now and watch.last_known_status:
+            watch.last_known_status = False
+            watch.save(update_fields=['last_known_status', 'last_checked'])
+
+    return {'notified': notified, 'checked': total}

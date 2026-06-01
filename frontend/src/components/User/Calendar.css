@@ -7,6 +7,7 @@
   font-family: 'Inter', Arial, sans-serif;
   border-radius: 8px;
   overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
 }
 
 /* ── Toolbar ───────────────────────────────────────────────────────────── */
@@ -136,12 +137,13 @@
 .rbc-event {
   background-color: #f59e0b;
   color: #111827;
-  padding: 3px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 600;
   border: none;
   box-shadow: none;
+  margin-bottom: 6px;
 }
 
 .rbc-event:focus {
@@ -183,13 +185,58 @@
 }
 
 .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 14px 10px 14px;
+  border-bottom: none;
   vertical-align: middle;
+  text-align: left;
 }
 
-.rbc-agenda-view table.rbc-agenda-table tbody > tr:hover {
+.rbc-agenda-view table.rbc-agenda-table tbody > tr {
+  margin-bottom: 4px;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td.rbc-agenda-event-cell {
+  padding-bottom: 4px;
+}
+
+/* Rounded card per event row */
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row > td:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row > td:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row {
   background-color: rgba(255, 255, 255, 0.03);
+  margin-bottom: 6px;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Separator between event rows */
+.rbc-agenda-view .rbc-agenda-event-cell {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: left !important;
+}
+
+/* Space between event rows */
+.rbc-agenda-view table.rbc-agenda-table tbody > tr.rbc-agenda-event-row + tr.rbc-agenda-event-row {
+  border-top: 6px solid #111827;
+}
+
+/* Time cell left aligned */
+.rbc-agenda-time-cell {
+  text-align: left !important;
 }
 
 /* Date grouping rows */
