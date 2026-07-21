@@ -1,5 +1,5 @@
 {
-  "total_count": 746,
+  "total_count": 748,
   "convention_id": 27,
   "has_more": true,
   "next_path": "/api/v1/exhibitors?page=2",
@@ -5523,22 +5523,22 @@
       "_id": "17248",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17248,
-        "geometry": "Polygon",
         "name": "Asmadi Games",
-        "entity_id": 6175,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Asmadi Games, booth #2555",
-        "alternative_terms": null,
+        "entity_id": 6175,
+        "searchable_name": "Asmadi Games, (Exhibitor #2555)",
         "searchable_category": "Exhibitors",
+        "id": 17248,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "asmadi games, booth #2555",
+        "sorting_name": "asmadi games, (exhibitor #2555)",
         "zoom_range": [
           4,
           5,
@@ -5582,7 +5582,7 @@
             "names": [
               {
                 "name": "Asmadi Games",
-                "website": "https://asmadigames.com/"
+                "website": "https://asmadigames.com/gencon"
               }
             ],
             "icon": "shopping-cart",
@@ -5617,7 +5617,7 @@
         }
       },
       "sort": [
-        "asmadi games, booth #2555"
+        "asmadi games, (exhibitor #2555)"
       ]
     },
     {
@@ -17122,19 +17122,19 @@
       "_id": "17664",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17664,
-        "geometry": "Polygon",
         "name": "Critical Hit Gaming Supplies",
-        "entity_id": 6484,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
+        "entity_id": 6484,
         "searchable_name": "Critical Hit Gaming Supplies, booth #367",
-        "alternative_terms": null,
         "searchable_category": "Exhibitors",
+        "id": 17664,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
         "sorting_name": "critical hit gaming supplies, booth #367",
@@ -17181,7 +17181,7 @@
             "names": [
               {
                 "name": "Critical Hit Gaming Supplies",
-                "website": "https://www.criticalhitgamingsuppliescom"
+                "website": "https://www.criticalhitgaming.com/"
               }
             ],
             "icon": "shopping-cart",
@@ -20633,6 +20633,99 @@
     {
       "_index": "genconreg__db_geo_elements",
       "_type": "_doc",
+      "_id": "guest_17436_6962",
+      "_score": null,
+      "_source": {
+        "is_guest_exhibitor": true,
+        "host_element_id": 17436,
+        "searchable_name": "Don't Panic Games",
+        "search_name": "Don't Panic Games",
+        "name": "Don't Panic Games",
+        "sorting_name": "don't panic games",
+        "geometry": "Polygon",
+        "state": "active",
+        "floor_level": 1,
+        "convention_id": 27,
+        "min_zoom_level": 4,
+        "max_zoom_level": 7,
+        "searchable_category": "Exhibitors",
+        "filtered_category": "Exhibitors",
+        "search_category": "Exhibitors",
+        "map_location": "/map?c=27&f=1&lg=65.10498046875001&lt=3.7765593098768635&s=17436&z=4",
+        "searchable": true,
+        "booth_num": "2627",
+        "booth_num_search": "2627",
+        "zoom_range": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "latlng": [
+          [
+            65.10498046875001,
+            "3.7765593098768635"
+          ],
+          [
+            65.10498046875001,
+            6.402648405963896
+          ],
+          [
+            66.86279296875001,
+            6.402648405963896
+          ],
+          [
+            66.86279296875001,
+            "3.7765593098768635"
+          ]
+        ],
+        "map_feature": {
+          "type": "Feature",
+          "properties": {
+            "name": "Don't Panic Games",
+            "type": null,
+            "category": "Booth",
+            "id": 17436,
+            "icon": null,
+            "names": [
+              {
+                "name": "Don't Panic Games",
+                "website": null
+              }
+            ]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  65.10498046875001,
+                  "3.7765593098768635"
+                ],
+                [
+                  65.10498046875001,
+                  6.402648405963896
+                ],
+                [
+                  66.86279296875001,
+                  6.402648405963896
+                ],
+                [
+                  66.86279296875001,
+                  "3.7765593098768635"
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      "sort": [
+        "don't panic games"
+      ]
+    },
+    {
+      "_index": "genconreg__db_geo_elements",
+      "_type": "_doc",
       "_id": "17667",
       "_score": null,
       "_source": {
@@ -22355,6 +22448,107 @@
       },
       "sort": [
         "elf creek games, booth #2130"
+      ]
+    },
+    {
+      "_index": "genconreg__db_geo_elements",
+      "_type": "_doc",
+      "_id": "17948",
+      "_score": null,
+      "_source": {
+        "geometry": "Polygon",
+        "name": "Elisabeth Alba",
+        "searchable_name": "Elisabeth Alba, Artist (88)",
+        "searchable_category": "Artists",
+        "alternative_terms": "art, illustration, painting, drawing",
+        "searchable": true,
+        "state": "active",
+        "convention_id": 27,
+        "floor_level": 1,
+        "min_zoom_level": 4,
+        "max_zoom_level": 7,
+        "id": 17948,
+        "entity_id": null,
+        "guest_exhibitors": null,
+        "filtered_category": "Artists",
+        "sorting_name": "elisabeth alba, artist (88)",
+        "zoom_range": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "latlng": [
+          [
+            "24.391933593749993",
+            "31.592536197995226"
+          ],
+          [
+            "24.391933593749993",
+            "30.991699373330665"
+          ],
+          [
+            24.21615234374999,
+            "30.991699373330665"
+          ],
+          [
+            24.21615234374999,
+            "31.592536197995226"
+          ]
+        ],
+        "booth_num": 88,
+        "booth_num_search": "88",
+        "placement_state": null,
+        "map_location": "/map?c=27&f=1&lg=24.391933593749993&lt=31.592536197995226&s=17948&z=4",
+        "search_name": "Elisabeth Alba",
+        "search_category": "Artists",
+        "map_feature": {
+          "type": "Feature",
+          "properties": {
+            "icon": "paint-brush",
+            "className": "area-exhibitor",
+            "iconColor": "white",
+            "markerColor": "darkred",
+            "number": "88",
+            "name": "Elisabeth Alba",
+            "contactid": "119861",
+            "names": [
+              {
+                "name": "Elisabeth Alba",
+                "website": "http://www.albaillustration.com/"
+              }
+            ],
+            "type": "",
+            "category": "art-booth",
+            "id": 17948
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  "24.391933593749993",
+                  "31.592536197995226"
+                ],
+                [
+                  "24.391933593749993",
+                  "30.991699373330665"
+                ],
+                [
+                  24.21615234374999,
+                  "30.991699373330665"
+                ],
+                [
+                  24.21615234374999,
+                  "31.592536197995226"
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      "sort": [
+        "elisabeth alba, artist (88)"
       ]
     },
     {
@@ -31624,17 +31818,18 @@
         "min_zoom_level": 4,
         "max_zoom_level": 7,
         "entity_id": 6693,
-        "searchable_name": "Grey Fox Games, booth #2627",
+        "searchable_name": "Grey Fox Games, (Exhibitor #2627)",
         "searchable_category": "Exhibitors",
         "id": 17436,
         "state": "active",
         "searchable": true,
         "alternative_terms": null,
         "guest_exhibitors": [
+          "Don't Panic Games",
           "Next Level Miniatures"
         ],
         "filtered_category": "Exhibitors",
-        "sorting_name": "grey fox games, booth #2627",
+        "sorting_name": "grey fox games, (exhibitor #2627)",
         "zoom_range": [
           4,
           5,
@@ -31677,12 +31872,16 @@
             "number": "2627",
             "names": [
               {
+                "name": "Don't Panic Games",
+                "website": ""
+              },
+              {
                 "name": "Grey Fox Games",
                 "website": "https://greyfoxgames.com"
               },
               {
                 "name": "Next Level Miniatures",
-                "website": ""
+                "website": "https://www.nextlevelminiatures.com/"
               }
             ],
             "icon": "shopping-cart",
@@ -31717,7 +31916,7 @@
         }
       },
       "sort": [
-        "grey fox games, booth #2627"
+        "grey fox games, (exhibitor #2627)"
       ]
     },
     {
@@ -31930,20 +32129,22 @@
       "_id": "17407",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17407,
-        "geometry": "Polygon",
         "name": "HABA USA",
-        "entity_id": 6508,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
+        "entity_id": 6508,
         "searchable_name": "HABA USA, booth #2011",
-        "alternative_terms": null,
         "searchable_category": "Exhibitors",
-        "guest_exhibitors": null,
+        "id": 17407,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
+        "guest_exhibitors": [
+          "Smart Toys & Games"
+        ],
         "filtered_category": "Exhibitors",
         "sorting_name": "haba usa, booth #2011",
         "zoom_range": [
@@ -31990,6 +32191,10 @@
               {
                 "name": "HABA USA",
                 "website": "https://www.habausa.com/gen-con-online/"
+              },
+              {
+                "name": "Smart Toys & Games",
+                "website": ""
               }
             ],
             "icon": "shopping-cart",
@@ -33161,107 +33366,6 @@
     {
       "_index": "genconreg__db_geo_elements",
       "_type": "_doc",
-      "_id": "17965",
-      "_score": null,
-      "_source": {
-        "geometry": "Polygon",
-        "name": "Heroes of Time Productions",
-        "searchable_name": "Heroes of Time Productions, Author (O)",
-        "searchable_category": "Authors",
-        "alternative_terms": "story, character, chapters, fantasy, genre",
-        "searchable": true,
-        "state": "active",
-        "convention_id": 27,
-        "floor_level": 1,
-        "min_zoom_level": 4,
-        "max_zoom_level": 7,
-        "id": 17965,
-        "entity_id": null,
-        "guest_exhibitors": null,
-        "filtered_category": "Authors",
-        "sorting_name": "heroes of time productions, author (o)",
-        "zoom_range": [
-          4,
-          5,
-          6,
-          7
-        ],
-        "latlng": [
-          [
-            "20.700527343749986",
-            "26.388405490520043"
-          ],
-          [
-            "20.700527343749986",
-            "26.859830705304027"
-          ],
-          [
-            20.87630859374999,
-            "26.859830705304027"
-          ],
-          [
-            20.87630859374999,
-            "26.388405490520043"
-          ]
-        ],
-        "booth_num": 0,
-        "booth_num_search": "O",
-        "placement_state": null,
-        "map_location": "/map?c=27&f=1&lg=20.700527343749986&lt=26.388405490520043&s=17965&z=4",
-        "search_name": "Heroes of Time Productions",
-        "search_category": "Authors",
-        "map_feature": {
-          "type": "Feature",
-          "properties": {
-            "icon": "book",
-            "className": "area-exhibitor",
-            "iconColor": "white",
-            "markerColor": "darkred",
-            "number": "O",
-            "name": "Heroes of Time Productions",
-            "contactid": "451697",
-            "names": [
-              {
-                "name": "Heroes of Time Productions",
-                "website": "https://www.heroesoftime.com"
-              }
-            ],
-            "type": "",
-            "category": "author-booth",
-            "id": 17965
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [
-                [
-                  "20.700527343749986",
-                  "26.388405490520043"
-                ],
-                [
-                  "20.700527343749986",
-                  "26.859830705304027"
-                ],
-                [
-                  20.87630859374999,
-                  "26.859830705304027"
-                ],
-                [
-                  20.87630859374999,
-                  "26.388405490520043"
-                ]
-              ]
-            ]
-          }
-        }
-      },
-      "sort": [
-        "heroes of time productions, author (o)"
-      ]
-    },
-    {
-      "_index": "genconreg__db_geo_elements",
-      "_type": "_doc",
       "_id": "17547",
       "_score": null,
       "_source": {
@@ -34184,22 +34288,22 @@
       "_id": "17434",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17434,
-        "geometry": "Polygon",
         "name": "Hrothgar's Hoard",
-        "entity_id": 6405,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Hrothgar's Hoard, booth #2802",
-        "alternative_terms": null,
+        "entity_id": 6405,
+        "searchable_name": "Hrothgar's Hoard, (Exhibitor #2802)",
         "searchable_category": "Exhibitors",
+        "id": 17434,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "hrothgar's hoard, booth #2802",
+        "sorting_name": "hrothgar's hoard, (exhibitor #2802)",
         "zoom_range": [
           4,
           5,
@@ -34243,7 +34347,7 @@
             "names": [
               {
                 "name": "Hrothgar's Hoard",
-                "website": "https://www.facebook.com/hrothgarshoard"
+                "website": "https://www.hrothgars-hoard.com"
               }
             ],
             "icon": "shopping-cart",
@@ -34278,7 +34382,7 @@
         }
       },
       "sort": [
-        "hrothgar's hoard, booth #2802"
+        "hrothgar's hoard, (exhibitor #2802)"
       ]
     },
     {
@@ -36665,6 +36769,107 @@
     {
       "_index": "genconreg__db_geo_elements",
       "_type": "_doc",
+      "_id": "17965",
+      "_score": null,
+      "_source": {
+        "geometry": "Polygon",
+        "name": "Jess Galaxie",
+        "searchable_name": "Jess Galaxie, Author (O)",
+        "searchable_category": "Authors",
+        "alternative_terms": "story, character, chapters, fantasy, genre",
+        "searchable": true,
+        "state": "active",
+        "convention_id": 27,
+        "floor_level": 1,
+        "min_zoom_level": 4,
+        "max_zoom_level": 7,
+        "id": 17965,
+        "entity_id": null,
+        "guest_exhibitors": null,
+        "filtered_category": "Authors",
+        "sorting_name": "jess galaxie, author (o)",
+        "zoom_range": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "latlng": [
+          [
+            "20.700527343749986",
+            "26.388405490520043"
+          ],
+          [
+            "20.700527343749986",
+            "26.859830705304027"
+          ],
+          [
+            20.87630859374999,
+            "26.859830705304027"
+          ],
+          [
+            20.87630859374999,
+            "26.388405490520043"
+          ]
+        ],
+        "booth_num": 0,
+        "booth_num_search": "O",
+        "placement_state": null,
+        "map_location": "/map?c=27&f=1&lg=20.700527343749986&lt=26.388405490520043&s=17965&z=4",
+        "search_name": "Jess Galaxie",
+        "search_category": "Authors",
+        "map_feature": {
+          "type": "Feature",
+          "properties": {
+            "icon": "book",
+            "className": "area-exhibitor",
+            "iconColor": "white",
+            "markerColor": "darkred",
+            "number": "O",
+            "name": "Jess Galaxie",
+            "contactid": "627037",
+            "names": [
+              {
+                "name": "Jess Galaxie",
+                "website": "https://jessgalaxie.com/"
+              }
+            ],
+            "type": "",
+            "category": "author-booth",
+            "id": 17965
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  "20.700527343749986",
+                  "26.388405490520043"
+                ],
+                [
+                  "20.700527343749986",
+                  "26.859830705304027"
+                ],
+                [
+                  20.87630859374999,
+                  "26.859830705304027"
+                ],
+                [
+                  20.87630859374999,
+                  "26.388405490520043"
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      "sort": [
+        "jess galaxie, author (o)"
+      ]
+    },
+    {
+      "_index": "genconreg__db_geo_elements",
+      "_type": "_doc",
       "_id": "17887",
       "_score": null,
       "_source": {
@@ -38814,107 +39019,6 @@
     {
       "_index": "genconreg__db_geo_elements",
       "_type": "_doc",
-      "_id": "17948",
-      "_score": null,
-      "_source": {
-        "state": "active",
-        "id": 17948,
-        "geometry": "Polygon",
-        "name": "Kiri Leonard",
-        "entity_id": null,
-        "floor_level": 1,
-        "convention_id": 27,
-        "min_zoom_level": 4,
-        "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Kiri Leonard, Artist (88)",
-        "alternative_terms": "art, illustration, painting, drawing",
-        "searchable_category": "Artists",
-        "guest_exhibitors": null,
-        "filtered_category": "Artists",
-        "sorting_name": "kiri leonard, artist (88)",
-        "zoom_range": [
-          4,
-          5,
-          6,
-          7
-        ],
-        "latlng": [
-          [
-            "24.391933593749993",
-            "31.592536197995226"
-          ],
-          [
-            "24.391933593749993",
-            "30.991699373330665"
-          ],
-          [
-            24.21615234374999,
-            "30.991699373330665"
-          ],
-          [
-            24.21615234374999,
-            "31.592536197995226"
-          ]
-        ],
-        "booth_num": 88,
-        "booth_num_search": "88",
-        "placement_state": null,
-        "map_location": "/map?c=27&f=1&lg=24.391933593749993&lt=31.592536197995226&s=17948&z=4",
-        "search_name": "Kiri Leonard",
-        "search_category": "Artists",
-        "map_feature": {
-          "type": "Feature",
-          "properties": {
-            "icon": "paint-brush",
-            "className": "area-exhibitor",
-            "iconColor": "white",
-            "markerColor": "darkred",
-            "number": "88",
-            "name": "Kiri Leonard",
-            "contactid": "285737",
-            "names": [
-              {
-                "name": "Kiri Leonard",
-                "website": "https://valkiri.llc"
-              }
-            ],
-            "type": null,
-            "category": "art-booth",
-            "id": 17948
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [
-                [
-                  "24.391933593749993",
-                  "31.592536197995226"
-                ],
-                [
-                  "24.391933593749993",
-                  "30.991699373330665"
-                ],
-                [
-                  24.21615234374999,
-                  "30.991699373330665"
-                ],
-                [
-                  24.21615234374999,
-                  "31.592536197995226"
-                ]
-              ]
-            ]
-          }
-        }
-      },
-      "sort": [
-        "kiri leonard, artist (88)"
-      ]
-    },
-    {
-      "_index": "genconreg__db_geo_elements",
-      "_type": "_doc",
       "_id": "17889",
       "_score": null,
       "_source": {
@@ -39431,22 +39535,22 @@
       "_id": "17487",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17487,
-        "geometry": "Polygon",
         "name": "KTBG & Burnt Island Games",
-        "entity_id": 6288,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "KTBG &amp; Burnt Island Games, booth #2310",
-        "alternative_terms": null,
+        "entity_id": 6288,
+        "searchable_name": "KTBG & Burnt Island Games, (Exhibitor #2310)",
         "searchable_category": "Exhibitors",
+        "id": 17487,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "ktbg &amp; burnt island games, booth #2310",
+        "sorting_name": "ktbg & burnt island games, (exhibitor #2310)",
         "zoom_range": [
           4,
           5,
@@ -39490,7 +39594,7 @@
             "names": [
               {
                 "name": "KTBG & Burnt Island Games",
-                "website": "https://www.kidstablebg.com/"
+                "website": "https://www.kidstablebg.com"
               }
             ],
             "icon": "shopping-cart",
@@ -39525,7 +39629,7 @@
         }
       },
       "sort": [
-        "ktbg &amp; burnt island games, booth #2310"
+        "ktbg & burnt island games, (exhibitor #2310)"
       ]
     },
     {
@@ -50171,22 +50275,22 @@
       "_id": "17566",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17566,
-        "geometry": "Polygon",
         "name": "Naomi VanDoren",
-        "entity_id": 6280,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Naomi VanDoren, booth #652",
-        "alternative_terms": null,
+        "entity_id": 6280,
+        "searchable_name": "Naomi VanDoren, (Exhibitor #652)",
         "searchable_category": "Exhibitors",
+        "id": 17566,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "naomi vandoren, booth #652",
+        "sorting_name": "naomi vandoren, (exhibitor #652)",
         "zoom_range": [
           4,
           5,
@@ -50230,7 +50334,7 @@
             "names": [
               {
                 "name": "Naomi VanDoren",
-                "website": "https://www.naomivandoren.com/"
+                "website": "https://naomivandoren.com/gen-con-online"
               }
             ],
             "icon": "shopping-cart",
@@ -50265,7 +50369,7 @@
         }
       },
       "sort": [
-        "naomi vandoren, booth #652"
+        "naomi vandoren, (exhibitor #652)"
       ]
     },
     {
@@ -50942,7 +51046,7 @@
             "names": [
               {
                 "name": "Next Level Miniatures",
-                "website": null
+                "website": "https://www.nextlevelminiatures.com/"
               }
             ]
           },
@@ -56444,22 +56548,22 @@
       "_id": "17416",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17416,
-        "geometry": "Polygon",
         "name": "Portal Games",
-        "entity_id": 6709,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Portal Games, booth #419",
-        "alternative_terms": null,
+        "entity_id": 6709,
+        "searchable_name": "Portal Games, (Exhibitor #419)",
         "searchable_category": "Exhibitors",
+        "id": 17416,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "portal games, booth #419",
+        "sorting_name": "portal games, (exhibitor #419)",
         "zoom_range": [
           4,
           5,
@@ -56503,7 +56607,7 @@
             "names": [
               {
                 "name": "Portal Games",
-                "website": "https://PortalGamesUS.com"
+                "website": "https://shopportalgames.com"
               }
             ],
             "icon": "shopping-cart",
@@ -56538,7 +56642,7 @@
         }
       },
       "sort": [
-        "portal games, booth #419"
+        "portal games, (exhibitor #419)"
       ]
     },
     {
@@ -63991,6 +64095,99 @@
     {
       "_index": "genconreg__db_geo_elements",
       "_type": "_doc",
+      "_id": "guest_17407_6963",
+      "_score": null,
+      "_source": {
+        "is_guest_exhibitor": true,
+        "host_element_id": 17407,
+        "searchable_name": "Smart Toys & Games",
+        "search_name": "Smart Toys & Games",
+        "name": "Smart Toys & Games",
+        "sorting_name": "smart toys & games",
+        "geometry": "Polygon",
+        "state": "active",
+        "floor_level": 1,
+        "convention_id": 27,
+        "min_zoom_level": 4,
+        "max_zoom_level": 7,
+        "searchable_category": "Exhibitors",
+        "filtered_category": "Exhibitors",
+        "search_category": "Exhibitors",
+        "map_location": "/map?c=27&f=1&lg=49.28466796875&lt=8.146242825034385&s=17407&z=4",
+        "searchable": true,
+        "booth_num": "2011",
+        "booth_num_search": "2011",
+        "zoom_range": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "latlng": [
+          [
+            49.28466796875,
+            8.146242825034385
+          ],
+          [
+            49.28466796875,
+            "10.746969318460001"
+          ],
+          [
+            51.04248046875001,
+            "10.746969318460001"
+          ],
+          [
+            51.04248046875001,
+            8.146242825034385
+          ]
+        ],
+        "map_feature": {
+          "type": "Feature",
+          "properties": {
+            "name": "Smart Toys & Games",
+            "type": null,
+            "category": "Booth",
+            "id": 17407,
+            "icon": null,
+            "names": [
+              {
+                "name": "Smart Toys & Games",
+                "website": null
+              }
+            ]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  49.28466796875,
+                  8.146242825034385
+                ],
+                [
+                  49.28466796875,
+                  "10.746969318460001"
+                ],
+                [
+                  51.04248046875001,
+                  "10.746969318460001"
+                ],
+                [
+                  51.04248046875001,
+                  8.146242825034385
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      "sort": [
+        "smart toys & games"
+      ]
+    },
+    {
+      "_index": "genconreg__db_geo_elements",
+      "_type": "_doc",
       "_id": "17716",
       "_score": null,
       "_source": {
@@ -65428,115 +65625,6 @@
       },
       "sort": [
         "stat trackers, booth #469"
-      ]
-    },
-    {
-      "_index": "genconreg__db_geo_elements",
-      "_type": "_doc",
-      "_id": "17465",
-      "_score": null,
-      "_source": {
-        "name": "Steamforged Games",
-        "geometry": "Polygon",
-        "floor_level": 1,
-        "convention_id": 27,
-        "min_zoom_level": 4,
-        "max_zoom_level": 7,
-        "entity_id": 6667,
-        "searchable_name": "Steamforged Games, (Exhibitor #1429)",
-        "searchable_category": "Exhibitors",
-        "id": 17465,
-        "state": "active",
-        "searchable": true,
-        "alternative_terms": null,
-        "guest_exhibitors": [
-          "Warmachine x Baron of Dice"
-        ],
-        "filtered_category": "Exhibitors",
-        "sorting_name": "steamforged games, (exhibitor #1429)",
-        "zoom_range": [
-          4,
-          5,
-          6,
-          7
-        ],
-        "latlng": [
-          [
-            33.46435546875001,
-            "15.876809064146771"
-          ],
-          [
-            33.46435546875001,
-            "19.228176737766262"
-          ],
-          [
-            35.22216796875001,
-            "19.228176737766262"
-          ],
-          [
-            35.22216796875001,
-            "15.876809064146771"
-          ]
-        ],
-        "booth_num": "1429",
-        "booth_num_search": "1429",
-        "placement_state": "published",
-        "map_location": "/map?c=27&f=1&lg=33.46435546875001&lt=15.876809064146771&s=17465&z=4",
-        "search_name": "Steamforged Games",
-        "search_category": "Exhibitors",
-        "map_feature": {
-          "type": "Feature",
-          "properties": {
-            "missingTopLeft": false,
-            "missingBottomLeft": false,
-            "className": "area-exhibitor",
-            "category": "Booth",
-            "contactid": 249264,
-            "name": "Steamforged Games",
-            "number": "1429",
-            "names": [
-              {
-                "name": "Steamforged Games",
-                "website": "https://steamforged.com"
-              },
-              {
-                "name": "Warmachine x Baron of Dice",
-                "website": ""
-              }
-            ],
-            "icon": "shopping-cart",
-            "iconColor": "white",
-            "markerColor": "darkred",
-            "type": null,
-            "id": 17465
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [
-                [
-                  33.46435546875001,
-                  "15.876809064146771"
-                ],
-                [
-                  33.46435546875001,
-                  "19.228176737766262"
-                ],
-                [
-                  35.22216796875001,
-                  "19.228176737766262"
-                ],
-                [
-                  35.22216796875001,
-                  "15.876809064146771"
-                ]
-              ]
-            ]
-          }
-        }
-      },
-      "sort": [
-        "steamforged games, (exhibitor #1429)"
       ]
     },
     {
@@ -68059,22 +68147,22 @@
       "_id": "17756",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17756,
-        "geometry": "Polygon",
         "name": "Tavern Crawl Games",
-        "entity_id": 6440,
+        "geometry": "Polygon",
         "floor_level": 1,
         "convention_id": 27,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Tavern Crawl Games, booth #2764",
-        "alternative_terms": null,
+        "entity_id": 6440,
+        "searchable_name": "Tavern Crawl Games, (Exhibitor #2764)",
         "searchable_category": "Exhibitors",
+        "id": 17756,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
-        "sorting_name": "tavern crawl games, booth #2764",
+        "sorting_name": "tavern crawl games, (exhibitor #2764)",
         "zoom_range": [
           4,
           5,
@@ -68118,7 +68206,7 @@
             "names": [
               {
                 "name": "Tavern Crawl Games",
-                "website": "https://www.partywanted.com/"
+                "website": "https://taverncrawlgames.com/"
               }
             ],
             "icon": "shopping-cart",
@@ -68153,7 +68241,7 @@
         }
       },
       "sort": [
-        "tavern crawl games, booth #2764"
+        "tavern crawl games, (exhibitor #2764)"
       ]
     },
     {
@@ -73883,19 +73971,19 @@
       "_id": "17467",
       "_score": null,
       "_source": {
-        "state": "active",
-        "id": 17467,
         "geometry": "Polygon",
         "name": "Van Ryder Games",
-        "entity_id": 6291,
-        "floor_level": 1,
+        "searchable_name": "Van Ryder Games, booth #2719",
+        "searchable_category": "Exhibitors",
+        "alternative_terms": "",
+        "searchable": true,
+        "state": "active",
         "convention_id": 27,
+        "floor_level": 1,
         "min_zoom_level": 4,
         "max_zoom_level": 7,
-        "searchable": true,
-        "searchable_name": "Van Ryder Games, booth #2719",
-        "alternative_terms": null,
-        "searchable_category": "Exhibitors",
+        "id": 17467,
+        "entity_id": 6291,
         "guest_exhibitors": null,
         "filtered_category": "Exhibitors",
         "sorting_name": "van ryder games, booth #2719",
@@ -73932,23 +74020,23 @@
         "map_feature": {
           "type": "Feature",
           "properties": {
-            "missingTopLeft": false,
-            "missingBottomLeft": false,
+            "missingTopLeft": "false",
+            "missingBottomLeft": "false",
             "className": "area-exhibitor",
             "category": "Booth",
-            "contactid": 249296,
+            "contactid": "249296",
             "name": "Van Ryder Games",
             "number": "2719",
+            "icon": "shopping-cart",
+            "iconColor": "white",
+            "markerColor": "darkred",
             "names": [
               {
                 "name": "Van Ryder Games",
                 "website": "https://vanrydergames.com"
               }
             ],
-            "icon": "shopping-cart",
-            "iconColor": "white",
-            "markerColor": "darkred",
-            "type": null,
+            "type": "",
             "id": 17467
           },
           "geometry": {
@@ -74481,6 +74569,115 @@
       },
       "sort": [
         "warmachine x baron of dice"
+      ]
+    },
+    {
+      "_index": "genconreg__db_geo_elements",
+      "_type": "_doc",
+      "_id": "17465",
+      "_score": null,
+      "_source": {
+        "name": "Warmachine",
+        "geometry": "Polygon",
+        "floor_level": 1,
+        "convention_id": 27,
+        "min_zoom_level": 4,
+        "max_zoom_level": 7,
+        "entity_id": 6667,
+        "searchable_name": "Warmachine, (Exhibitor #1429)",
+        "searchable_category": "Exhibitors",
+        "id": 17465,
+        "state": "active",
+        "searchable": true,
+        "alternative_terms": null,
+        "guest_exhibitors": [
+          "Warmachine x Baron of Dice"
+        ],
+        "filtered_category": "Exhibitors",
+        "sorting_name": "warmachine, (exhibitor #1429)",
+        "zoom_range": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "latlng": [
+          [
+            33.46435546875001,
+            "15.876809064146771"
+          ],
+          [
+            33.46435546875001,
+            "19.228176737766262"
+          ],
+          [
+            35.22216796875001,
+            "19.228176737766262"
+          ],
+          [
+            35.22216796875001,
+            "15.876809064146771"
+          ]
+        ],
+        "booth_num": "1429",
+        "booth_num_search": "1429",
+        "placement_state": "published",
+        "map_location": "/map?c=27&f=1&lg=33.46435546875001&lt=15.876809064146771&s=17465&z=4",
+        "search_name": "Warmachine",
+        "search_category": "Exhibitors",
+        "map_feature": {
+          "type": "Feature",
+          "properties": {
+            "missingTopLeft": false,
+            "missingBottomLeft": false,
+            "className": "area-exhibitor",
+            "category": "Booth",
+            "contactid": 249264,
+            "name": "Warmachine",
+            "number": "1429",
+            "names": [
+              {
+                "name": "Warmachine",
+                "website": "https://steamforged.com"
+              },
+              {
+                "name": "Warmachine x Baron of Dice",
+                "website": ""
+              }
+            ],
+            "icon": "shopping-cart",
+            "iconColor": "white",
+            "markerColor": "darkred",
+            "type": null,
+            "id": 17465
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  33.46435546875001,
+                  "15.876809064146771"
+                ],
+                [
+                  33.46435546875001,
+                  "19.228176737766262"
+                ],
+                [
+                  35.22216796875001,
+                  "19.228176737766262"
+                ],
+                [
+                  35.22216796875001,
+                  "15.876809064146771"
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      "sort": [
+        "warmachine, (exhibitor #1429)"
       ]
     },
     {

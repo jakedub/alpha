@@ -20,8 +20,8 @@ class EventSerializer(serializers.ModelSerializer):
             'minimum_age', 'experience_required', 'materials_required', 'materials_required_details',
             'start_time', 'duration_hours', 'end_time', 'gm_names', 'website', 'email', 'tournament',
             'round_number', 'total_rounds', 'minimum_play_time', 'attendee_registration', 'cost',
-            'location', 'room', 'table_number', 'special_category', 'tickets_available', 'last_modified',
-            'user_status'
+            'location', 'room', 'table_number', 'special_category', 'tickets_available',
+            'ticketing_method', 'last_modified', 'user_status'
         ]
 
     def create(self, validated_data):

@@ -64,6 +64,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=False
     )
 
+    # ── Event preferences (stored as JSON lists) ─────────────────────────────
+    pref_event_types     = models.JSONField(default=list, blank=True)  # e.g. ["RPG", "BGM"]
+    pref_locations       = models.JSONField(default=list, blank=True)  # e.g. ["ICC", "JW Marriott"]
+    pref_age_requirements = models.JSONField(default=list, blank=True) # e.g. ["Everyone", "Teen"]
+    pref_experience_levels = models.JSONField(default=list, blank=True) # e.g. ["None", "Some"]
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'username'

@@ -60,7 +60,17 @@ class EventViewSet(viewsets.ModelViewSet):
             .distinct()
             .order_by('game_system')
         )
+        from app.models.location import Location
+        locations = (
+            Location.objects
+            .exclude(name__isnull=True)
+            .exclude(name='')
+            .values_list('name', flat=True)
+            .distinct()
+            .order_by('name')
+        )
         return Response({
             'gaming_groups': list(groups),
             'game_systems': list(game_systems),
+            'locations': list(locations),
         })

@@ -83,6 +83,7 @@ class Event(models.Model):
     table_number = models.CharField(max_length=50, null=True, blank=True)
     special_category = models.CharField(max_length=255, null=True, blank=True)
     tickets_available = models.IntegerField(null=True, blank=True)
+    ticketing_method = models.CharField(max_length=50, null=True, blank=True)  # e.g. "Paper", "Electronic"
     last_modified = models.DateField(auto_now=True)
     raw = models.JSONField(default=dict)
     event_id = models.IntegerField(null=True, blank=True, unique=True)
