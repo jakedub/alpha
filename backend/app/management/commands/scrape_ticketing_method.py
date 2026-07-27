@@ -25,6 +25,8 @@ from app.models.event import Event
 
 BASE_URL = "https://www.gencon.com/events/{event_id}"
 TICKETING_RE = re.compile(r'Ticketing Method:\s*([A-Za-z]+)', re.IGNORECASE)
+# Extracts trailing digits from game_id e.g. "NMN26ND304394" → "304394"
+GAME_ID_NUM_RE = re.compile(r'(\d+)$')
 
 HEADERS = {
     "User-Agent": (
@@ -72,33 +74,16 @@ class Command(BaseCommand):
         force = options["force"]
         dry_run = options["dry_run"]
 
+        # game_id must end in digits so we can build the URL
         qs = Event.objects.filter(
             tickets_available__gt=0,
-            event_id__isnull=False,
-        ).exclude(
-            event_id=0,
+            game_id__regex=r'\d+$',
         )
 
         if not force:
-            qs = qs.filter(ticketing_method__isnull=True) | qs.filter(ticketing_method='')
-            # Re-query cleanly
-            qs = Event.objects.filter(
-                tickets_available__gt=0,
-                event_id__isnull=False,
-            ).exclude(
-                event_id=0,
-            ).filter(
-                ticketing_method__isnull=True,
-            ) | Event.objects.filter(
-                tickets_available__gt=0,
-                event_id__isnull=False,
-            ).exclude(
-                event_id=0,
-            ).filter(
-                ticketing_method='',
-            )
+            qs = qs.filter(ticketing_method__isnull=True)
 
-        qs = qs.order_by('event_id')
+        qs = qs.order_by('game_id')
 
         if limit:
             qs = qs[:limit]
@@ -118,7 +103,11 @@ class Command(BaseCommand):
         errors = 0
 
         for i, event in enumerate(qs, start=1):
-            url = BASE_URL.format(event_id=event.event_id)
+            num_match = GAME_ID_NUM_RE.search(event.game_id or '')
+            if not num_match:
+                self.stdout.write(self.style.WARNING(f"  [{i}/{total}] {event.game_id} — can't parse numeric ID, skipping"))
+                continue
+            url = BASE_URL.format(event_id=num_match.group(1))
             try:
                 resp = session.get(url, timeout=15)
 
